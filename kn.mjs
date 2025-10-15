@@ -21,8 +21,7 @@ const getDateString = () => {
 
 
 // const editor = process.env.EDITOR;
-// On Windows, Node.js needs .cmd extension for shell commands
-const editor = process.platform === 'win32' ? 'code.cmd' : 'code';
+const editor = 'code';
 
 
 function getEditorArgs(filePath, lineNumber) {
