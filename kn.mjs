@@ -47,11 +47,9 @@ const searchNotes = () => {
     process.exit(1);
   }
 
-  // Use ripgrep to search all notes
+  // Use ripgrep to list files with matches (no line numbers)
   const rgProcess = spawn('rg', [
-    '--line-number',
-    '--color=always',
-    '--with-filename',
+    '--files-with-matches',
     '--follow',
     '.',
     notesPath
@@ -87,9 +85,12 @@ const searchNotes = () => {
 
   fzfProcess.on('exit', (code) => {
     if (code === 0 && selection.trim()) {
-      console.log('Selected:', selection.trim());
+      const filepath = selection.trim();
+      console.log('Opening:', filepath);
+      openInEditor(filepath);
+    } else {
+      process.exit(code || 0);
     }
-    process.exit(code || 0);
   });
 };
 
