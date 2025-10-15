@@ -73,11 +73,16 @@ const searchNotes = () => {
     stdio: ['ignore', 'pipe', 'pipe']  // stdin ignored, stdout/stderr piped
   });
 
-  // Pipe ripgrep output to fzf
+  // Pipe ripgrep output to fzf with bat preview
   const fzfProcess = spawn('fzf', [
-    '--ansi'
+    '--ansi',
+    '--delimiter', ':',
+    '--preview', '"bat --color=always --style=numbers --highlight-line={2} --theme=ansi {1}"',
+    '--preview-window', 'right:60%:wrap'
   ], {
-    stdio: ['pipe', 'pipe', 'inherit']
+    stdio: ['pipe', 'pipe', 'inherit'],
+    cwd: notesPath,  // Run bat in notes directory so it finds relative paths
+    shell: true  // Need shell to handle quoted preview command
   });
 
   // Connect ripgrep stdout to fzf stdin
