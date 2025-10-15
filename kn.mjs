@@ -67,9 +67,11 @@ const searchNotes = () => {
     '--with-filename',
     '--no-heading',
     '--follow',
-    '.',
-    notesPath
-  ]);
+    '.'
+  ], {
+    cwd: notesPath,  // Run inside notes dir to get relative paths
+    stdio: ['ignore', 'pipe', 'pipe']  // stdin ignored, stdout/stderr piped
+  });
 
   // Pipe ripgrep output to fzf
   const fzfProcess = spawn('fzf', [
@@ -101,12 +103,15 @@ const searchNotes = () => {
 
   fzfProcess.on('exit', (code) => {
     if (code === 0 && selection.trim()) {
-      // Parse selection: filepath:lineNumber:content
-      // Handle Windows paths (C:\...) by looking for :digit: pattern
-      const match = selection.trim().match(/^(.+?):(\d+):/);
-      if (match) {
-        const filepath = match[1];
-        const lineNumber = parseInt(match[2], 10);
+      // Parse selection: filename:lineNumber:content (content may have colons)
+      const parts = selection.trim().split(':');
+      if (parts.length >= 2) {
+        const filename = parts[0];
+        const lineNumber = parseInt(parts[1], 10);
+
+        // Reconstruct full path
+        const filepath = path.join(notesPath, filename);
+
         console.log('Opening:', filepath, 'at line', lineNumber);
         openInEditor(filepath, lineNumber);
       } else {
