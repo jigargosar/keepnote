@@ -1,0 +1,15 @@
+{
+  "name": "keepnote",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Simple CLI note-taking tool",
+  "bin": {
+    "kn": "./kn.mjs"
+  },
+  "keywords": [
+    "cli",
+    "notes",
+    "productivity"
+  ],
+  "license": "ISC"
+}
