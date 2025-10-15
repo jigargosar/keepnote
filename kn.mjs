@@ -38,6 +38,61 @@ const openInEditor = (filepath) => {
   });
 };
 
+// Search notes using ripgrep + fzf
+const searchNotes = () => {
+  const notesPath = getNotesPath();
+
+  if (!fs.existsSync(notesPath)) {
+    console.error(`Notes directory does not exist: ${notesPath}`);
+    process.exit(1);
+  }
+
+  // Use ripgrep to search all notes
+  const rgProcess = spawn('rg', [
+    '--line-number',
+    '--color=always',
+    '--with-filename',
+    '--follow',
+    '.',
+    notesPath
+  ]);
+
+  // Pipe ripgrep output to fzf
+  const fzfProcess = spawn('fzf', [
+    '--ansi'
+  ], {
+    stdio: ['pipe', 'pipe', 'inherit']
+  });
+
+  // Connect ripgrep stdout to fzf stdin
+  rgProcess.stdout.pipe(fzfProcess.stdin);
+
+  rgProcess.on('error', (err) => {
+    console.error('Error: ripgrep (rg) not found');
+    console.error('Please install ripgrep: https://github.com/BurntSushi/ripgrep');
+    process.exit(1);
+  });
+
+  fzfProcess.on('error', (err) => {
+    console.error('Error: fzf not found');
+    console.error('Please install fzf: https://github.com/junegunn/fzf');
+    process.exit(1);
+  });
+
+  // Capture fzf selection
+  let selection = '';
+  fzfProcess.stdout.on('data', (data) => {
+    selection += data.toString();
+  });
+
+  fzfProcess.on('exit', (code) => {
+    if (code === 0 && selection.trim()) {
+      console.log('Selected:', selection.trim());
+    }
+    process.exit(code || 0);
+  });
+};
+
 // Create a new note
 const createNote = (title) => {
   const notesPath = getNotesPath();
@@ -66,8 +121,8 @@ const main = () => {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.log('Search mode not implemented yet');
-    process.exit(0);
+    searchNotes();
+    return;
   }
 
   // Join all arguments as the note title
