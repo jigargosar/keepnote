@@ -19,9 +19,22 @@ const getDateString = () => {
   return `${year}-${month}-${day}`;
 };
 
+
+// const editor = process.env.EDITOR;
+// On Windows, Node.js needs .cmd extension for shell commands
+const editor = process.platform === 'win32' ? 'code.cmd' : 'code';
+
+
+function getEditorArgs(filePath, lineNumber) {
+    // VS Code: use -g flag with file:line format
+    if (lineNumber) {
+        return ['-g', `${filePath}:${lineNumber}`];
+    }
+    return [filePath];
+}
+
 // Open file in editor
-const openInEditor = (filepath) => {
-  const editor = process.env.EDITOR;
+const openInEditor = (filepath, lineNumber) => {
 
   if (!editor) {
     console.error('Error: $EDITOR environment variable not set');
@@ -29,8 +42,9 @@ const openInEditor = (filepath) => {
     process.exit(1);
   }
 
-  const editorProcess = spawn(editor, [filepath], {
-    stdio: 'inherit'
+  const editorProcess = spawn(editor, getEditorArgs(filepath, lineNumber), {
+    stdio: 'inherit',
+    shell: true  // Required for .cmd files on Windows
   });
 
   editorProcess.on('exit', (code) => {
@@ -93,8 +107,9 @@ const searchNotes = () => {
       const match = selection.trim().match(/^(.+?):(\d+):/);
       if (match) {
         const filepath = match[1];
-        console.log('Opening:', filepath);
-        openInEditor(filepath);
+        const lineNumber = parseInt(match[2], 10);
+        console.log('Opening:', filepath, 'at line', lineNumber);
+        openInEditor(filepath, lineNumber);
       } else {
         console.error('Could not parse selection');
         process.exit(1);
