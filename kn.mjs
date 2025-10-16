@@ -21,8 +21,8 @@ const getDateString = () => {
 
 // Editor configurations - maps editor name to argument builder function
 const EDITOR_CONFIGS = {
-  'code': (filepath, lineNumber) => lineNumber ? ['-g', `${filepath}:${lineNumber}`] : [filepath],
-  'code-insiders': (filepath, lineNumber) => lineNumber ? ['-g', `${filepath}:${lineNumber}`] : [filepath],
+  'code': (filepath, lineNumber) => lineNumber ? ['--wait', '-g', `${filepath}:${lineNumber}`] : ['--wait', filepath],
+  'code-insiders': (filepath, lineNumber) => lineNumber ? ['--wait', '-g', `${filepath}:${lineNumber}`] : ['--wait', filepath],
   'vim': (filepath, lineNumber) => lineNumber ? [`+${lineNumber}`, filepath] : [filepath],
   'nvim': (filepath, lineNumber) => lineNumber ? [`+${lineNumber}`, filepath] : [filepath],
 };
