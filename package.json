@@ -20,5 +20,10 @@
     "singleQuote": true,
     "trailingComma": "all",
     "endOfLine": "lf"
+  },
+  "dependencies": {
+    "launch-editor": "^2.11.1",
+    "open-editor": "^5.1.0",
+    "open-in-editor": "^2.2.0"
   }
 }
