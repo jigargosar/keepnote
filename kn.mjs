@@ -77,7 +77,7 @@ const searchNotes = () => {
   const fzfProcess = spawn('fzf', [
     '--ansi',
     '--delimiter', ':',
-    '--preview', '"bat --color=always --style=numbers --highlight-line={2} --theme=ansi {1}"',
+    '--preview', '"bat --color=always --style=numbers --highlight-line={2} {1}"',
     '--preview-window', 'right:60%:wrap'
   ], {
     stdio: ['pipe', 'pipe', 'inherit'],
