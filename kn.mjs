@@ -19,35 +19,41 @@ const getDateString = () => {
   return `${year}-${month}-${day}`;
 };
 
+// Editor configurations - maps editor name to argument builder function
+const EDITOR_CONFIGS = {
+  'code': (filepath, lineNumber) => lineNumber ? ['-g', `${filepath}:${lineNumber}`] : [filepath],
+  'code-insiders': (filepath, lineNumber) => lineNumber ? ['-g', `${filepath}:${lineNumber}`] : [filepath],
+  'vim': (filepath, lineNumber) => lineNumber ? [`+${lineNumber}`, filepath] : [filepath],
+  'nvim': (filepath, lineNumber) => lineNumber ? [`+${lineNumber}`, filepath] : [filepath],
+};
 
-// const editor = process.env.EDITOR;
-const editor = 'code';
-
-
-function getEditorArgs(filePath, lineNumber) {
-    // VS Code: use -g flag with file:line format
-    if (lineNumber) {
-        return ['-g', `${filePath}:${lineNumber}`];
-    }
-    return [filePath];
-}
-
-// Open file in editor
 const openInEditor = (filepath, lineNumber) => {
+  const editorCmd = process.env.EDITOR || 'code';
 
-  if (!editor) {
-    console.error('Error: $EDITOR environment variable not set');
-    console.error('Please set your preferred editor: export EDITOR=code');
-    process.exit(1);
-  }
+  // Normalize editor name (remove .exe, .cmd extensions for lookup)
+  const normalizedEditor = editorCmd.replace(/\.(exe|cmd)$/i, '');
 
-  const editorProcess = spawn(editor, getEditorArgs(filepath, lineNumber), {
+  // Get editor config or use default (just pass filepath)
+  const getArgs = EDITOR_CONFIGS[normalizedEditor] || ((fp) => [fp]);
+  const args = getArgs(filepath, lineNumber);
+
+  const editorProcess = spawn(editorCmd, args, {
     stdio: 'inherit',
-    shell: true  // Required for .cmd files on Windows
+    shell: true
   });
 
   editorProcess.on('exit', (code) => {
+    if (code === 0) {
+      console.log('Editor closed');
+    } else {
+      console.error(`Editor exited with code ${code}`);
+    }
     process.exit(code || 0);
+  });
+
+  editorProcess.on('error', (error) => {
+    console.error('Failed to open editor:', error.message);
+    process.exit(1);
   });
 };
 
