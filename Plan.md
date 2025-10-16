@@ -70,4 +70,3 @@ Create a CLI note-taking tool in a single Node.js file that replicates ripnote f
 
 ## Someday/Maybe
 - Support editor-specific line number syntax (vim +line, code -g file:line, etc.)
-- Investigate bat Dracula theme configuration issue - currently using ansi theme as workaround
