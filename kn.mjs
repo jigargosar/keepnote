@@ -72,21 +72,33 @@ function openInEditor(filepath, lineNumber) {
   process.exit(result.status || 0)
 }
 
-// Search notes using ripgrep + fzf
-async function searchNotes() {
-  const notesPath = getOrCreateNotesPath()
-
-  const rg = spawnAndCapture('rg', [
-    '--line-number',
-    '--color=always',
-    '--with-filename',
-    '--no-heading',
-    '--follow',
-    '.'
+/**
+ * Spawns ripgrep to list all lines from all files in the notes directory.
+ * Output format: "filename:lineNumber:content"
+ * Example: "2025-01-15_meeting.md:5:Discussed project timeline"
+ *
+ * @param {string} notesPath - Path to notes directory
+ * @returns {{promise: Promise<unknown>, process: ChildProcessWithoutNullStreams}}
+ */
+function spawnRipgrep(notesPath) {
+  return spawnAndCapture('rg', [
+    '--line-number',     // Include line number in output
+    '--color=always',    // Preserve ANSI colors for fzf
+    '--with-filename',   // Include filename in output
+    '--no-heading',      // Output format: filename:line:content (no grouping)
+    '--follow',          // Follow symlinks
+    '.'                  // Search current directory (all files)
   ], {
     cwd: notesPath,
     stdio: ['ignore', 'pipe', 'pipe']
   })
+}
+
+// Search notes using ripgrep + fzf
+async function searchNotes() {
+  const notesPath = getOrCreateNotesPath()
+
+  const rg = spawnRipgrep(notesPath)
 
   const fzf = spawnAndCapture('fzf', [
     '--ansi',
