@@ -36,15 +36,17 @@ const EDITOR_CONFIGS = {
   'nvim': (filepath, lineNumber) => lineNumber ? [`+${lineNumber}`, filepath] : [filepath],
 };
 
-function openInEditor(filepath, lineNumber) {
+function getEditorConfig(filepath, lineNumber) {
   const editorCmd = process.env.EDITOR || 'code';
-
-  // Normalize editor name (remove .exe, .cmd extensions for lookup)
   const normalizedEditor = editorCmd.replace(/\.(exe|cmd)$/i, '');
-
-  // Get editor config or use default (just pass filepath)
   const getArgs = EDITOR_CONFIGS[normalizedEditor] || ((fp) => [fp]);
   const args = getArgs(filepath, lineNumber);
+
+  return { editorCmd, args };
+}
+
+function openInEditor(filepath, lineNumber) {
+  const { editorCmd, args } = getEditorConfig(filepath, lineNumber);
 
   const editorProcess = spawn(editorCmd, args, {
     stdio: 'inherit',
