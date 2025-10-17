@@ -37,6 +37,32 @@ function spawnAndCapture(command, args, options) {
   return { promise, process: proc }
 }
 
+// Check for required dependencies
+function checkDependencies() {
+  const dependencies = [
+    { cmd: 'rg', name: 'ripgrep', url: 'https://github.com/BurntSushi/ripgrep' },
+    { cmd: 'fzf', name: 'fzf', url: 'https://github.com/junegunn/fzf' },
+    { cmd: 'bat', name: 'bat', url: 'https://github.com/sharkdp/bat' }
+  ]
+
+  const missing = []
+
+  for (const dep of dependencies) {
+    const result = spawnSync(dep.cmd, ['--version'], { stdio: 'ignore' })
+    if (result.error) {
+      missing.push(dep)
+    }
+  }
+
+  if (missing.length > 0) {
+    console.error('Missing required dependencies:')
+    for (const dep of missing) {
+      console.error(`  - ${dep.name}: ${dep.url}`)
+    }
+    process.exit(1)
+  }
+}
+
 // Get notes directory from environment or use default, ensuring it exists
 function getOrCreateNotesPath() {
   const notesPath = process.env.NOTE_PATH || path.join(os.homedir(), 'notes')
@@ -204,6 +230,8 @@ function createNote(title) {
 
 // Main logic
 function main() {
+  checkDependencies()
+
   const args = process.argv.slice(2)
 
   if (args.length === 0) {
