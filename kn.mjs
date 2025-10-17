@@ -147,13 +147,8 @@ async function searchNotes(notesPath) {
   // Connect ripgrep stdout to fzf stdin
   rg.process.stdout.pipe(fzf.process.stdin)
 
-  try {
-    const { output } = await fzf.promise
-    return output || null
-  } catch (error) {
-    console.error('Error:', error.message)
-    process.exit(1)
-  }
+  const { output } = await fzf.promise
+  return output || null
 }
 
 /**
@@ -211,4 +206,4 @@ async function main() {
   openInEditor(filepath)
 }
 
-main()
+await main()
