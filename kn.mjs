@@ -4,64 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 import { spawn, spawnSync } from 'node:child_process'
-import { log } from './logger.mjs'
-
-// Generic spawn wrapper - captures output and returns promise + process
-function spawnAndCapture(command, args, options) {
-  const proc = spawn(command, args, options)
-
-  const chunks = []
-  if (proc.stdout) {
-    proc.stdout.on('data', (chunk) => {
-      chunks.push(chunk)
-    })
-  }
-
-  const promise = new Promise((resolve, reject) => {
-    proc.on('error', (err) => {
-      reject(err)
-    })
-
-    proc.on('exit', (code) => {
-      if (code !== 0 && code !== null) {
-        reject(new Error(`Process exited with code ${code}`))
-        return
-      }
-
-      const output =
-        chunks.length > 0 ? Buffer.concat(chunks).toString().trim() : ''
-      resolve({ code, output })
-    })
-  })
-
-  return { promise, process: proc }
-}
-
-// Check for required dependencies
-function checkDependencies() {
-  const dependencies = [
-    { cmd: 'rg', name: 'ripgrep', url: 'https://github.com/BurntSushi/ripgrep' },
-    { cmd: 'fzf', name: 'fzf', url: 'https://github.com/junegunn/fzf' },
-    { cmd: 'bat', name: 'bat', url: 'https://github.com/sharkdp/bat' }
-  ]
-
-  const missing = []
-
-  for (const dep of dependencies) {
-    const result = spawnSync(dep.cmd, ['--version'], { stdio: 'ignore' })
-    if (result.error) {
-      missing.push(dep)
-    }
-  }
-
-  if (missing.length > 0) {
-    console.error('Missing required dependencies:')
-    for (const dep of missing) {
-      console.error(`  - ${dep.name}: ${dep.url}`)
-    }
-    process.exit(1)
-  }
-}
+import { log, commandsExists, spawnAndCapture } from './util.mjs'
 
 // Get notes directory from environment or use default, ensuring it exists
 function getOrCreateNotesPath() {
@@ -230,7 +173,11 @@ function createNote(title) {
 
 // Main logic
 function main() {
-  checkDependencies()
+  commandsExists([
+    { cmd: 'rg', name: 'ripgrep', url: 'https://github.com/BurntSushi/ripgrep' },
+    { cmd: 'fzf', name: 'fzf', url: 'https://github.com/junegunn/fzf' },
+    { cmd: 'bat', name: 'bat', url: 'https://github.com/sharkdp/bat' }
+  ])
 
   const args = process.argv.slice(2)
 
