@@ -6,6 +6,37 @@ import os from 'node:os'
 import { spawn, spawnSync } from 'node:child_process'
 import { log } from './logger.mjs'
 
+// Generic spawn wrapper - captures output and returns promise + process
+function spawnAndCapture(command, args, options) {
+  const proc = spawn(command, args, options)
+
+  const chunks = []
+  if (proc.stdout) {
+    proc.stdout.on('data', (chunk) => {
+      chunks.push(chunk)
+    })
+  }
+
+  const promise = new Promise((resolve, reject) => {
+    proc.on('error', (err) => {
+      reject(err)
+    })
+
+    proc.on('exit', (code) => {
+      if (code !== 0 && code !== null) {
+        reject(new Error(`Process exited with code ${code}`))
+        return
+      }
+
+      const output =
+        chunks.length > 0 ? Buffer.concat(chunks).toString().trim() : ''
+      resolve({ code, output })
+    })
+  })
+
+  return { promise, process: proc }
+}
+
 // Get notes directory from environment or use default, ensuring it exists
 function getOrCreateNotesPath() {
   const notesPath = process.env.NOTE_PATH || path.join(os.homedir(), 'notes')
