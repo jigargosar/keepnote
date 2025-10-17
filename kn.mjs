@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 
 // Get notes directory from environment or use default, ensuring it exists
 function getOrCreateNotesPath() {
@@ -48,24 +48,17 @@ function getEditorConfig(filepath, lineNumber) {
 function openInEditor(filepath, lineNumber) {
   const { editorCmd, args } = getEditorConfig(filepath, lineNumber);
 
-  const editorProcess = spawn(editorCmd, args, {
+  const result = spawnSync(editorCmd, args, {
     stdio: 'inherit',
     shell: true
   });
 
-  editorProcess.on('exit', (code) => {
-    if (code === 0) {
-      console.log('Editor closed');
-    } else {
-      console.error(`Editor exited with code ${code}`);
-    }
-    process.exit(code || 0);
-  });
-
-  editorProcess.on('error', (error) => {
-    console.error('Failed to open editor:', error.message);
+  if (result.error) {
+    console.error('Failed to open editor:', result.error.message);
     process.exit(1);
-  });
+  }
+
+  process.exit(result.status || 0);
 }
 
 // Search notes using ripgrep + fzf
