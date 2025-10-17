@@ -38,7 +38,7 @@ function commandExists(cmd) {
 }
 
 // Check if multiple commands exist
-export function commandsExists(executables) {
+export function requireExecutables(executables) {
   const missing = []
 
   for (const exe of executables) {
