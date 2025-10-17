@@ -30,7 +30,7 @@ function buildNoteFilename(title) {
 }
 
 // Editor configuration
-const getEditorConfig = (() => {
+const editorConfig = (() => {
   const EDITOR_CONFIGS = {
     code: (filepath, lineNumber) =>
       lineNumber
@@ -57,7 +57,7 @@ const getEditorConfig = (() => {
 })()
 
 function openInEditor(filepath, lineNumber) {
-  const { editorCmd, args } = getEditorConfig(filepath, lineNumber)
+  const { editorCmd, args } = editorConfig(filepath, lineNumber)
 
   const result = spawnSync(editorCmd, args, {
     stdio: 'inherit',
