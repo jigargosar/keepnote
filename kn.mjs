@@ -73,89 +73,59 @@ function openInEditor(filepath, lineNumber) {
 }
 
 // Search notes using ripgrep + fzf
-function searchNotes() {
+async function searchNotes() {
   const notesPath = getOrCreateNotesPath()
 
-  // Use ripgrep to search note content with line numbers
-  const rgProcess = spawn(
-    'rg',
-    [
-      '--line-number',
-      '--color=always',
-      '--with-filename',
-      '--no-heading',
-      '--follow',
-      '.',
-    ],
-    {
-      cwd: notesPath, // Run inside notes dir to get relative paths
-      stdio: ['ignore', 'pipe', 'pipe'], // stdin ignored, stdout/stderr piped
-    },
-  )
+  const rg = spawnAndCapture('rg', [
+    '--line-number',
+    '--color=always',
+    '--with-filename',
+    '--no-heading',
+    '--follow',
+    '.'
+  ], {
+    cwd: notesPath,
+    stdio: ['ignore', 'pipe', 'pipe']
+  })
 
-  // Pipe ripgrep output to fzf with bat preview
-  const fzfProcess = spawn(
-    'fzf',
-    [
-      '--ansi',
-      '--delimiter',
-      ':',
-      '--preview',
-      '"bat --color=always --style=numbers --highlight-line={2} {1}"',
-      '--preview-window',
-      'right:60%:wrap',
-    ],
-    {
-      stdio: ['pipe', 'pipe', 'inherit'],
-      cwd: notesPath, // Run bat in notes directory so it finds relative paths
-      shell: true, // Need shell to handle quoted preview command
-    },
-  )
+  const fzf = spawnAndCapture('fzf', [
+    '--ansi',
+    '--delimiter', ':',
+    '--preview', '"bat --color=always --style=numbers --highlight-line={2} {1}"',
+    '--preview-window', 'right:60%:wrap'
+  ], {
+    stdio: ['pipe', 'pipe', 'inherit'],
+    cwd: notesPath,
+    shell: true
+  })
 
   // Connect ripgrep stdout to fzf stdin
-  rgProcess.stdout.pipe(fzfProcess.stdin)
+  rg.process.stdout.pipe(fzf.process.stdin)
 
-  rgProcess.on('error', (err) => {
-    console.error('Error: ripgrep (rg) not found')
-    console.error(
-      'Please install ripgrep: https://github.com/BurntSushi/ripgrep',
-    )
-    process.exit(1)
-  })
+  try {
+    const { output } = await fzf.promise
 
-  fzfProcess.on('error', (err) => {
-    console.error('Error: fzf not found')
-    console.error('Please install fzf: https://github.com/junegunn/fzf')
-    process.exit(1)
-  })
-
-  // Capture fzf selection
-  let selection = ''
-  fzfProcess.stdout.on('data', (data) => {
-    selection += data.toString()
-  })
-
-  fzfProcess.on('exit', (code) => {
-    if (code === 0 && selection.trim()) {
-      // Parse selection: filename:lineNumber:content (content may have colons)
-      const parts = selection.trim().split(':')
-      if (parts.length >= 2) {
-        const filename = parts[0]
-        const lineNumber = parseInt(parts[1], 10)
-
-        // Reconstruct full path
-        const filepath = path.join(notesPath, filename)
-
-        console.log('Opening:', filepath, 'at line', lineNumber)
-        openInEditor(filepath, lineNumber)
-      } else {
-        console.error('Could not parse selection')
-        process.exit(1)
-      }
-    } else {
-      process.exit(code || 0)
+    if (!output) {
+      process.exit(0)
     }
-  })
+
+    // Parse selection: filename:lineNumber:content (content may have colons)
+    const parts = output.split(':')
+    if (parts.length >= 2) {
+      const filename = parts[0]
+      const lineNumber = parseInt(parts[1], 10)
+      const filepath = path.join(notesPath, filename)
+
+      console.log('Opening:', filepath, 'at line', lineNumber)
+      openInEditor(filepath, lineNumber)
+    } else {
+      console.error('Could not parse selection')
+      process.exit(1)
+    }
+  } catch (error) {
+    console.error('Error:', error.message)
+    process.exit(1)
+  }
 }
 
 // Create a new note
@@ -172,7 +142,7 @@ function createNote(title) {
 }
 
 // Main logic
-function main() {
+async function main() {
   requireExecutables([
     { cmd: 'rg', name: 'ripgrep', url: 'https://github.com/BurntSushi/ripgrep' },
     { cmd: 'fzf', name: 'fzf', url: 'https://github.com/junegunn/fzf' },
@@ -182,7 +152,7 @@ function main() {
   const args = process.argv.slice(2)
 
   if (args.length === 0) {
-    searchNotes()
+    await searchNotes()
     return
   }
 
