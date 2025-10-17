@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 import { spawn, spawnSync } from 'node:child_process'
-import { log, commandsExists, spawnAndCapture } from './util.mjs'
+import { log, requireExecutables, spawnAndCapture } from './util.mjs'
 
 // Get notes directory from environment or use default, ensuring it exists
 function getOrCreateNotesPath() {
@@ -173,7 +173,7 @@ function createNote(title) {
 
 // Main logic
 function main() {
-  commandsExists([
+  requireExecutables([
     { cmd: 'rg', name: 'ripgrep', url: 'https://github.com/BurntSushi/ripgrep' },
     { cmd: 'fzf', name: 'fzf', url: 'https://github.com/junegunn/fzf' },
     { cmd: 'bat', name: 'bat', url: 'https://github.com/sharkdp/bat' }
