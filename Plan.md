@@ -71,3 +71,4 @@ Create a CLI note-taking tool in a single Node.js file that replicates ripnote f
 ## Someday/Maybe
 - Support editor-specific line number syntax (vim +line, code -g file:line, etc.)
 - Colocate ripgrep output format encoding/decoding (create RipgrepFormat object with args + parse method)
+- Default to `cat` (Unix) or `type` (Windows) for fzf preview if `bat` not found
