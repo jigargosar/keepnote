@@ -94,22 +94,52 @@ function spawnRipgrep(notesPath) {
   })
 }
 
+/**
+ * Spawns fzf fuzzy finder to interactively select from ripgrep output.
+ * Input format: "filename:lineNumber:content" (from ripgrep)
+ * Output: The selected line in the same format
+ *
+ * @param {string} notesPath - Path to notes directory (for bat preview)
+ * @returns {{promise: Promise<unknown>, process: ChildProcessWithoutNullStreams}}
+ */
+function spawnFzf(notesPath) {
+  return spawnAndCapture('fzf', [
+    '--ansi',            // Support ANSI color codes from ripgrep
+    '--delimiter', ':',  // Split on ':' for preview (filename:line:content)
+    '--preview', '"bat --color=always --style=numbers --highlight-line={2} {1}"',  // Preview: bat {filename} highlighting {lineNumber}
+    '--preview-window', 'right:60%:wrap'  // Show preview on right side
+  ], {
+    stdio: ['pipe', 'pipe', 'inherit'],  // stdin: pipe from rg, stdout: capture selection, stderr: show UI
+    cwd: notesPath,  // Run in notes dir so bat can find files
+    shell: true      // Need shell for quoted preview command
+  })
+}
+
+/**
+ * Parses ripgrep selection format: "filename:lineNumber:content"
+ * Note: content may contain colons, but we only need first 2 parts
+ *
+ * @param {string} selection - Selected line from fzf
+ * @param {string} notesPath - Base directory for notes
+ * @returns {{filename: string, lineNumber: number, filepath: string} | null}
+ */
+function parseRipgrepSelection(selection, notesPath) {
+  const parts = selection.split(':')
+  if (parts.length < 2) return null
+
+  const filename = parts[0]
+  const lineNumber = parseInt(parts[1], 10)
+  const filepath = path.join(notesPath, filename)
+
+  return { filename, lineNumber, filepath }
+}
+
 // Search notes using ripgrep + fzf
 async function searchNotes() {
   const notesPath = getOrCreateNotesPath()
 
   const rg = spawnRipgrep(notesPath)
-
-  const fzf = spawnAndCapture('fzf', [
-    '--ansi',
-    '--delimiter', ':',
-    '--preview', '"bat --color=always --style=numbers --highlight-line={2} {1}"',
-    '--preview-window', 'right:60%:wrap'
-  ], {
-    stdio: ['pipe', 'pipe', 'inherit'],
-    cwd: notesPath,
-    shell: true
-  })
+  const fzf = spawnFzf(notesPath)
 
   // Connect ripgrep stdout to fzf stdin
   rg.process.stdout.pipe(fzf.process.stdin)
@@ -121,19 +151,14 @@ async function searchNotes() {
       process.exit(0)
     }
 
-    // Parse selection: filename:lineNumber:content (content may have colons)
-    const parts = output.split(':')
-    if (parts.length >= 2) {
-      const filename = parts[0]
-      const lineNumber = parseInt(parts[1], 10)
-      const filepath = path.join(notesPath, filename)
-
-      console.log('Opening:', filepath, 'at line', lineNumber)
-      openInEditor(filepath, lineNumber)
-    } else {
+    const parsed = parseRipgrepSelection(output, notesPath)
+    if (!parsed) {
       console.error('Could not parse selection')
       process.exit(1)
     }
+
+    console.log('Opening:', parsed.filepath, 'at line', parsed.lineNumber)
+    openInEditor(parsed.filepath, parsed.lineNumber)
   } catch (error) {
     console.error('Error:', error.message)
     process.exit(1)
