@@ -29,22 +29,24 @@ function buildNoteFilename(title) {
   return `${datePrefix}_${slug}.md`;
 }
 
-// Editor configurations - maps editor name to argument builder function
-const EDITOR_CONFIGS = {
-  'code': (filepath, lineNumber) => lineNumber ? ['--wait', '-g', `${filepath}:${lineNumber}`] : ['--wait', filepath],
-  'code-insiders': (filepath, lineNumber) => lineNumber ? ['--wait', '-g', `${filepath}:${lineNumber}`] : ['--wait', filepath],
-  'vim': (filepath, lineNumber) => lineNumber ? [`+${lineNumber}`, filepath] : [filepath],
-  'nvim': (filepath, lineNumber) => lineNumber ? [`+${lineNumber}`, filepath] : [filepath],
-};
+// Editor configuration
+const getEditorConfig = (() => {
+  const EDITOR_CONFIGS = {
+    'code': (filepath, lineNumber) => lineNumber ? ['--wait', '-g', `${filepath}:${lineNumber}`] : ['--wait', filepath],
+    'code-insiders': (filepath, lineNumber) => lineNumber ? ['--wait', '-g', `${filepath}:${lineNumber}`] : ['--wait', filepath],
+    'vim': (filepath, lineNumber) => lineNumber ? [`+${lineNumber}`, filepath] : [filepath],
+    'nvim': (filepath, lineNumber) => lineNumber ? [`+${lineNumber}`, filepath] : [filepath],
+  };
 
-function getEditorConfig(filepath, lineNumber) {
-  const editorCmd = process.env.EDITOR || 'code';
-  const normalizedEditor = editorCmd.replace(/\.(exe|cmd)$/i, '');
-  const getArgs = EDITOR_CONFIGS[normalizedEditor] || ((fp) => [fp]);
-  const args = getArgs(filepath, lineNumber);
+  return function(filepath, lineNumber) {
+    const editorCmd = process.env.EDITOR || 'code';
+    const normalizedEditor = editorCmd.replace(/\.(exe|cmd)$/i, '');
+    const getArgs = EDITOR_CONFIGS[normalizedEditor] || ((fp) => [fp]);
+    const args = getArgs(filepath, lineNumber);
 
-  return { editorCmd, args };
-}
+    return { editorCmd, args };
+  };
+})();
 
 function openInEditor(filepath, lineNumber) {
   const { editorCmd, args } = getEditorConfig(filepath, lineNumber);
