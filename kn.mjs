@@ -6,18 +6,18 @@ import os from 'node:os';
 import { spawn } from 'node:child_process';
 
 // Get notes directory from environment or use default
-const getNotesPath = () => {
+function getNotesPath() {
   return process.env.NOTE_PATH || path.join(os.homedir(), 'notes');
-};
+}
 
 // Format date as YYYY-MM-DD
-const getDateString = () => {
+function getDateString() {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
-};
+}
 
 // Editor configurations - maps editor name to argument builder function
 const EDITOR_CONFIGS = {
@@ -27,7 +27,7 @@ const EDITOR_CONFIGS = {
   'nvim': (filepath, lineNumber) => lineNumber ? [`+${lineNumber}`, filepath] : [filepath],
 };
 
-const openInEditor = (filepath, lineNumber) => {
+function openInEditor(filepath, lineNumber) {
   const editorCmd = process.env.EDITOR || 'code';
 
   // Normalize editor name (remove .exe, .cmd extensions for lookup)
@@ -55,10 +55,10 @@ const openInEditor = (filepath, lineNumber) => {
     console.error('Failed to open editor:', error.message);
     process.exit(1);
   });
-};
+}
 
 // Search notes using ripgrep + fzf
-const searchNotes = () => {
+function searchNotes() {
   const notesPath = getNotesPath();
 
   if (!fs.existsSync(notesPath)) {
@@ -133,10 +133,10 @@ const searchNotes = () => {
       process.exit(code || 0);
     }
   });
-};
+}
 
 // Create a new note
-const createNote = (title) => {
+function createNote(title) {
   const notesPath = getNotesPath();
 
   // Create notes directory if it doesn't exist
@@ -156,10 +156,10 @@ const createNote = (title) => {
   console.log(`Created note: ${filepath}`);
 
   return filepath;
-};
+}
 
 // Main logic
-const main = () => {
+function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
@@ -171,6 +171,6 @@ const main = () => {
   const noteTitle = args.join(' ');
   const filepath = createNote(noteTitle);
   openInEditor(filepath);
-};
+}
 
 main();
