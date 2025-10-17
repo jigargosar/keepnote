@@ -134,10 +134,13 @@ function parseRipgrepSelection(selection, notesPath) {
   return { filename, lineNumber, filepath }
 }
 
-// Search notes using ripgrep + fzf
-async function searchNotes() {
-  const notesPath = getOrCreateNotesPath()
-
+/**
+ * Interactively search notes using ripgrep + fzf
+ *
+ * @param {string} notesPath - Path to notes directory
+ * @returns {Promise<string | null>} Selected line or null if cancelled
+ */
+async function searchNotes(notesPath) {
   const rg = spawnRipgrep(notesPath)
   const fzf = spawnFzf(notesPath)
 
@@ -146,23 +149,32 @@ async function searchNotes() {
 
   try {
     const { output } = await fzf.promise
-
-    if (!output) {
-      process.exit(0)
-    }
-
-    const parsed = parseRipgrepSelection(output, notesPath)
-    if (!parsed) {
-      console.error('Could not parse selection')
-      process.exit(1)
-    }
-
-    console.log('Opening:', parsed.filepath, 'at line', parsed.lineNumber)
-    openInEditor(parsed.filepath, parsed.lineNumber)
+    return output || null
   } catch (error) {
     console.error('Error:', error.message)
     process.exit(1)
   }
+}
+
+/**
+ * Search notes and open the selected one in editor
+ */
+async function searchAndOpen() {
+  const notesPath = getOrCreateNotesPath()
+
+  const selection = await searchNotes(notesPath)
+  if (!selection) {
+    process.exit(0)
+  }
+
+  const parsed = parseRipgrepSelection(selection, notesPath)
+  if (!parsed) {
+    console.error('Could not parse selection')
+    process.exit(1)
+  }
+
+  console.log('Opening:', parsed.filepath, 'at line', parsed.lineNumber)
+  openInEditor(parsed.filepath, parsed.lineNumber)
 }
 
 // Create a new note
@@ -189,7 +201,7 @@ async function main() {
   const args = process.argv.slice(2)
 
   if (args.length === 0) {
-    await searchNotes()
+    await searchAndOpen()
     return
   }
 
