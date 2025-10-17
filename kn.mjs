@@ -21,6 +21,13 @@ function getDateString() {
   return `${year}-${month}-${day}`;
 }
 
+// Build filename for a new note
+function buildNoteFilename(title) {
+  const datePrefix = getDateString();
+  const slug = title.replace(/\s+/g, '-');
+  return `${datePrefix}_${slug}.md`;
+}
+
 // Editor configurations - maps editor name to argument builder function
 const EDITOR_CONFIGS = {
   'code': (filepath, lineNumber) => lineNumber ? ['--wait', '-g', `${filepath}:${lineNumber}`] : ['--wait', filepath],
@@ -135,14 +142,10 @@ function searchNotes() {
 // Create a new note
 function createNote(title) {
   const notesPath = getOrCreateNotesPath();
-
-  // Create filename: YYYY-MM-DD_title.md
-  const filename = `${getDateString()}_${title.replace(/\s+/g, '-')}.md`;
+  const filename = buildNoteFilename(title);
   const filepath = path.join(notesPath, filename);
 
-  // Create note content with heading and blank lines
   const content = `# ${title}\n\n\n`;
-
   fs.writeFileSync(filepath, content);
   console.log(`Created note: ${filepath}`);
 
