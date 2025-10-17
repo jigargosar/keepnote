@@ -121,11 +121,14 @@ function spawnFzf(notesPath) {
  *
  * @param {string} selection - Selected line from fzf
  * @param {string} notesPath - Base directory for notes
- * @returns {{filename: string, lineNumber: number, filepath: string} | null}
+ * @returns {{filename: string, lineNumber: number, filepath: string}}
+ * @throws {Error} If selection format is invalid
  */
 function parseRipgrepSelection(selection, notesPath) {
   const parts = selection.split(':')
-  if (parts.length < 2) return null
+  if (parts.length < 2) {
+    throw new Error('Could not parse selection: invalid format')
+  }
 
   const filename = parts[0]
   const lineNumber = parseInt(parts[1], 10)
@@ -138,7 +141,7 @@ function parseRipgrepSelection(selection, notesPath) {
  * Interactively search notes using ripgrep + fzf
  *
  * @param {string} notesPath - Path to notes directory
- * @returns {Promise<string | null>} Selected line or null if cancelled
+ * @returns {Promise<string>} Selected line
  */
 async function searchNotes(notesPath) {
   const rg = spawnRipgrep(notesPath)
@@ -148,7 +151,12 @@ async function searchNotes(notesPath) {
   rg.process.stdout.pipe(fzf.process.stdin)
 
   const { output } = await fzf.promise
-  return output || null
+
+  if (!output) {
+    process.exit(0)  // User cancelled - clean exit
+  }
+
+  return output
 }
 
 /**
@@ -158,15 +166,7 @@ async function searchAndOpen() {
   const notesPath = getOrCreateNotesPath()
 
   const selection = await searchNotes(notesPath)
-  if (!selection) {
-    process.exit(0)
-  }
-
   const parsed = parseRipgrepSelection(selection, notesPath)
-  if (!parsed) {
-    console.error('Could not parse selection')
-    process.exit(1)
-  }
 
   console.log('Opening:', parsed.filepath, 'at line', parsed.lineNumber)
   openInEditor(parsed.filepath, parsed.lineNumber)
