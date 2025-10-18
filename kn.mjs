@@ -4,9 +4,9 @@ import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 import { requireExecutables } from './util.mjs'
-import { search } from './search.mjs'
-import { createNote } from './create.mjs'
-import { openInEditor } from './editor.mjs'
+import searchNote from './search-note.mjs'
+import createNote from './create-note.mjs'
+import openInEditor from './open-in-editor.mjs'
 
 // Get notes directory from environment or use default, ensuring it exists
 function getOrCreateNotesPath() {
@@ -27,7 +27,7 @@ async function main() {
   const args = process.argv.slice(2)
 
   if (args.length === 0) {
-    const result = await search(notesPath)
+    const result = await searchNote(notesPath)
     openInEditor(result.filepath, result.lineNumber)
   } else {
     const noteTitle = args.join(' ')

@@ -94,7 +94,7 @@ async function searchNotes(notesPath) {
  * @param {string} notesPath - Path to notes directory
  * @returns {Promise<{filepath: string, lineNumber: number}>} Selected file location
  */
-export async function search(notesPath) {
+export default async function searchNote(notesPath) {
   const selection = await searchNotes(notesPath)
   const parsed = parseRipgrepSelection(selection, notesPath)
 

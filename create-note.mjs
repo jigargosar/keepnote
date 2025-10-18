@@ -24,7 +24,7 @@ function buildNoteFilename(title) {
  * @param {string} notesPath - Path to notes directory
  * @returns {{filepath: string}} Path to created note
  */
-export function createNote(title, notesPath) {
+export default function createNote(title, notesPath) {
   const filename = buildNoteFilename(title)
   const filepath = path.join(notesPath, filename)
 
