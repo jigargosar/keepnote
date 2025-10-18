@@ -32,7 +32,7 @@ function buildNoteFilename(title) {
  *
  * @param {string} title - The title of the note
  * @param {string} notesPath - Path to notes directory
- * @returns {{filepath: string}} Path to created note
+ * @returns {{filepath: string, lineNumber: number}} Path to created note and line number for cursor
  */
 export default function createNote(title, notesPath) {
   const filename = buildNoteFilename(title)
@@ -42,5 +42,6 @@ export default function createNote(title, notesPath) {
   fs.writeFileSync(filepath, content)
   console.log(`Created note: ${filepath}`)
 
-  return { filepath }
+  // Return line 4 (after all content) for cursor position
+  return { filepath, lineNumber: 4 }
 }

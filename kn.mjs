@@ -32,7 +32,7 @@ async function main() {
   } else {
     const noteTitle = args.join(' ')
     const result = createNote(noteTitle, notesPath)
-    openInEditor(result.filepath)
+    openInEditor(result.filepath, result.lineNumber)
   }
 }
 
