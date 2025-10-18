@@ -20,5 +20,8 @@
     "singleQuote": true,
     "trailingComma": "all",
     "endOfLine": "lf"
+  },
+  "dependencies": {
+    "filenamify": "^7.0.0"
   }
 }

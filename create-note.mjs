@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import filenamify from 'filenamify'
 
 // Format date as YYYY-MM-DD
 function getDateString() {
@@ -10,10 +11,19 @@ function getDateString() {
   return `${year}-${month}-${day}`
 }
 
-// Build filename for a new note
+// Build filename for a new note with proper sanitization
 function buildNoteFilename(title) {
   const datePrefix = getDateString()
-  const slug = title.replace(/\s+/g, '-')
+
+  // Step 1: Replace invalid filename chars with dash
+  const sanitized = filenamify(title, { replacement: '-' })
+  // Step 2: Replace spaces (including multiple) with single dash
+  const spacesReplaced = sanitized.replace(/\s+/g, '-')
+  // Step 3: Replace multiple consecutive dashes with single dash
+  const dashesCollapsed = spacesReplaced.replace(/-+/g, '-')
+  // Step 4: Trim leading/trailing dashes
+  const slug = dashesCollapsed.replace(/^-+|-+$/g, '')
+
   return `${datePrefix}_${slug}.md`
 }
 

@@ -1,52 +1,68 @@
 import { spawnAndCapture } from './util.mjs'
 import path from 'node:path'
 
+// Field separator for ripgrep output (filename, line number, content)
+// Using double forward slash - single slash is forbidden in filenames,
+// so // is safe for separating fields. We only parse first 2 fields anyway.
+const FIELD_SEPARATOR = '//'
+
 /**
  * Spawns ripgrep to list all lines from all files in the notes directory.
- * Output format: "filename:lineNumber:content"
- * Example: "2025-01-15_meeting.md:5:Discussed project timeline"
+ * Output format: "filename\tlineNumber\tcontent" (tab-separated)
+ * Example: "2025-01-15_meeting.md\t5\tDiscussed project timeline"
  *
  * @param {string} notesPath - Path to notes directory
  * @returns {{promise: Promise<unknown>, process: ChildProcessWithoutNullStreams}}
  */
 function spawnRipgrep(notesPath) {
-  return spawnAndCapture('rg', [
-    '--line-number',     // Include line number in output
-    '--color=always',    // Preserve ANSI colors for fzf
-    '--with-filename',   // Include filename in output
-    '--no-heading',      // Output format: filename:line:content (no grouping)
-    '--follow',          // Follow symlinks
-    '.'                  // Search current directory (all files)
-  ], {
-    cwd: notesPath,
-    stdio: ['ignore', 'pipe', 'pipe']
-  })
+  return spawnAndCapture(
+    'rg',
+    [
+      '--line-number', // Include line number in output
+      '--color=always', // Preserve ANSI colors for fzf
+      '--with-filename', // Include filename in output
+      '--follow', // Follow symlinks
+      '--field-match-separator',
+      FIELD_SEPARATOR,
+      '.', // Search current directory (all files)
+    ],
+    {
+      cwd: notesPath,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    },
+  )
 }
 
 /**
  * Spawns fzf fuzzy finder to interactively select from ripgrep output.
- * Input format: "filename:lineNumber:content" (from ripgrep)
+ * Input format: "filename\tlineNumber\tcontent" (tab-separated)
  * Output: The selected line in the same format
  *
  * @param {string} notesPath - Path to notes directory (for bat preview)
  * @returns {{promise: Promise<unknown>, process: ChildProcessWithoutNullStreams}}
  */
 function spawnFzf(notesPath) {
-  return spawnAndCapture('fzf', [
-    '--ansi',            // Support ANSI color codes from ripgrep
-    '--delimiter', ':',  // Split on ':' for preview (filename:line:content)
-    '--preview', '"bat --color=always --style=numbers --highlight-line={2} {1}"',  // Preview: bat {filename} highlighting {lineNumber}
-    '--preview-window', 'right:60%:wrap'  // Show preview on right side
-  ], {
-    stdio: ['pipe', 'pipe', 'inherit'],  // stdin: pipe from rg, stdout: capture selection, stderr: show UI
-    cwd: notesPath,  // Run in notes dir so bat can find files
-    shell: true      // Need shell for quoted preview command
-  })
+  return spawnAndCapture(
+    'fzf',
+    [
+      '--ansi', // Support ANSI color codes from ripgrep
+      '--delimiter',
+      FIELD_SEPARATOR,
+      '--preview',
+      'bat --color=always --style=numbers --highlight-line={2} {1}', // Preview: bat {filename} highlighting {lineNumber}
+      '--preview-window',
+      'right:60%:wrap', // Show preview on right side
+    ],
+    {
+      stdio: ['pipe', 'pipe', 'inherit'], // stdin: pipe from rg, stdout: capture selection, stderr: show UI
+      cwd: notesPath, // Run in notes dir so bat can find files
+    },
+  )
 }
 
 /**
- * Parses ripgrep selection format: "filename:lineNumber:content"
- * Note: content may contain colons, but we only need first 2 parts
+ * Parses ripgrep selection format using field separator
+ * Extracts first two fields (filename and line number)
  *
  * @param {string} selection - Selected line from fzf
  * @param {string} notesPath - Base directory for notes
@@ -54,7 +70,9 @@ function spawnFzf(notesPath) {
  * @throws {Error} If selection format is invalid
  */
 function parseRipgrepSelection(selection, notesPath) {
-  const parts = selection.split(':')
+  // Split on field separator and extract first two fields
+  const parts = selection.split(FIELD_SEPARATOR)
+
   if (parts.length < 2) {
     throw new Error('Could not parse selection: invalid format')
   }
@@ -82,7 +100,7 @@ async function searchNotes(notesPath) {
   const { output } = await fzf.promise
 
   if (!output) {
-    process.exit(0)  // User cancelled - clean exit
+    process.exit(0) // User cancelled - clean exit
   }
 
   return output

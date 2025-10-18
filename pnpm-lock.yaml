@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      filenamify:
+        specifier: ^7.0.0
+        version: 7.0.0
     devDependencies:
       prettier:
         specifier: ^3.6.2
@@ -14,11 +18,25 @@ importers:
 
 packages:
 
+  filename-reserved-regex@4.0.0:
+    resolution: {integrity: sha512-9ZT504KxEQDamsOogZImAWGEN24R1uFAxU3ZS4AZqn2ooidmN68Olh7n4/RcA4lLatZztjA0ZSuxeLHVoCc8JA==}
+    engines: {node: '>=20'}
+
+  filenamify@7.0.0:
+    resolution: {integrity: sha512-nfY7iUozEErS4qKYu5X/DT+rafo43o642xAG/3AmZFp7chhVB20gsU4kH8KJZLDhyEZ2o4kHMSBDLDNBJ4r/cw==}
+    engines: {node: '>=20'}
+
   prettier@3.6.2:
     resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
     engines: {node: '>=14'}
     hasBin: true
 
 snapshots:
+
+  filename-reserved-regex@4.0.0: {}
+
+  filenamify@7.0.0:
+    dependencies:
+      filename-reserved-regex: 4.0.0
 
   prettier@3.6.2: {}
