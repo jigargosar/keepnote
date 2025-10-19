@@ -84,6 +84,7 @@ function parseRipgrepSelection(selection, notesPath) {
   return { filename, lineNumber, filepath }
 }
 
+
 /**
  * Interactively search notes using ripgrep + fzf
  *
@@ -97,10 +98,18 @@ async function searchNotes(notesPath) {
   // Connect ripgrep stdout to fzf stdin
   rg.process.stdout.pipe(fzf.process.stdin)
 
-  const { output } = await fzf.promise
+  const { code, output } = await fzf.promise
 
+  // Exit code 130 indicates user cancellation (Ctrl+C or ESC in fzf)
+  const FZF_EXIT_CODE_USER_CANCELLED = 130
+
+  if (code === FZF_EXIT_CODE_USER_CANCELLED) {
+    process.exit(0)
+  }
+
+  // empty output indicates fzf query didn't match any file. hence safe exit.
   if (!output) {
-    process.exit(0) // User cancelled - clean exit
+    process.exit(0)
   }
 
   return output

@@ -1,6 +1,7 @@
 import { spawn, spawnSync } from 'node:child_process'
 
 // Generic spawn wrapper - captures output and returns promise + process
+// Promise always resolves with { code, output } - callers handle non-zero exit codes
 export function spawnAndCapture(command, args, options) {
   const proc = spawn(command, args, options)
 
@@ -17,11 +18,6 @@ export function spawnAndCapture(command, args, options) {
     })
 
     proc.on('exit', (code) => {
-      if (code !== 0 && code !== null) {
-        reject(new Error(`Process exited with code ${code}`))
-        return
-      }
-
       const output =
         chunks.length > 0 ? Buffer.concat(chunks).toString().trim() : ''
       resolve({ code, output })
