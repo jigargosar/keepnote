@@ -46,6 +46,7 @@ function spawnFzf(notesPath) {
     'fzf',
     [
       '--ansi', // Support ANSI color codes from ripgrep
+      '--no-mouse', // Disable mouse support to avoid terminal escape sequence issues
       '--delimiter',
       FIELD_SEPARATOR,
       '--preview',
