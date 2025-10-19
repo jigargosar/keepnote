@@ -45,18 +45,19 @@ function spawnFzf(notesPath) {
   return spawnAndCapture(
     'fzf',
     [
-      '--ansi', // Support ANSI color codes from ripgrep
-      '--no-mouse', // Disable mouse support to avoid terminal escape sequence issues
+      '--ansi',
+      '--no-mouse',
+      // '--color=dark',
       '--delimiter',
       FIELD_SEPARATOR,
       '--preview',
-      'bat --color=always --style=numbers --highlight-line={2} {1}', // Preview: bat {filename} highlighting {lineNumber}
+      'bat --color=always --style=numbers --highlight-line={2} {1}',
       '--preview-window',
-      'right:60%:wrap', // Show preview on right side
+      'right:50%:wrap',
     ],
     {
-      stdio: ['pipe', 'pipe', 'inherit'], // stdin: pipe from rg, stdout: capture selection, stderr: show UI
-      cwd: notesPath, // Run in notes dir so bat can find files
+      stdio: ['pipe', 'pipe', 'inherit'],
+      cwd: notesPath,
     },
   )
 }
