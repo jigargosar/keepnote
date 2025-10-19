@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Simple CLI note-taking tool",
+  "author": "Jigar Gosar <jigar.gosar@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jigargosar/keepnote.git"
+  },
   "bin": {
     "kn": "./kn.mjs"
   },
@@ -14,6 +19,9 @@
     "notes",
     "productivity"
   ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "license": "ISC",
   "devDependencies": {
     "prettier": "^3.6.2"
