@@ -9,7 +9,8 @@
     "url": "https://github.com/jigargosar/keepnote.git"
   },
   "bin": {
-    "kn": "./kn.mjs"
+    "kn": "./kn.mjs",
+    "keepnote": "./kn.mjs"
   },
   "files": [
     "*.mjs"
