@@ -6,6 +6,9 @@
   "bin": {
     "kn": "./kn.mjs"
   },
+  "files": [
+    "*.mjs"
+  ],
   "keywords": [
     "cli",
     "notes",
