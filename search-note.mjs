@@ -24,6 +24,13 @@ function spawnRipgrep(notesPath) {
       '--follow', // Follow symlinks
       '--field-match-separator',
       FIELD_SEPARATOR,
+      // Exclude Windows reserved names to prevent hangs
+      '--glob', '!CON',
+      '--glob', '!PRN',
+      '--glob', '!AUX',
+      '--glob', '!NUL',
+      '--glob', '!COM[1-9]',
+      '--glob', '!LPT[1-9]',
       '.', // Search current directory (all files)
     ],
     {
