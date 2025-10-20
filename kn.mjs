@@ -9,7 +9,7 @@ import createNote from './create-note.mjs'
 import openInEditor from './open-in-editor.mjs'
 
 const REQUIRED_EXECUTABLES = [
-  { cmd: 'rg1', name: 'ripgrep', url: 'https://github.com/BurntSushi/ripgrep' },
+  { cmd: 'rg', name: 'ripgrep', url: 'https://github.com/BurntSushi/ripgrep' },
   { cmd: 'fzf', name: 'fzf', url: 'https://github.com/junegunn/fzf' },
   { cmd: 'bat', name: 'bat', url: 'https://github.com/sharkdp/bat' },
 ]
@@ -23,9 +23,15 @@ function getOrCreateNotesPath() {
 
 // Format executable status for display
 function formatExecutableStatus(executables) {
+  const GREEN = '\x1b[32m'
+  const RED = '\x1b[31m'
+  const RESET = '\x1b[0m'
+
   const lines = []
   for (const exe of executables) {
-    const status = exe.installed ? '\u2713 Installed' : '\u2717 Missing'
+    const status = exe.installed
+      ? `${GREEN}\u2713${RESET} Installed`
+      : `${RED}\u2717${RESET} Missing`
     const line = exe.installed
       ? `  ${status} ${exe.name}`
       : `  ${status} ${exe.name} - ${exe.url}`
