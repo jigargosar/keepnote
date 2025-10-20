@@ -33,23 +33,12 @@ function commandExists(cmd) {
   return !result.error
 }
 
-// Check if multiple commands exist
-export function requireExecutables(executables) {
-  const missing = []
-
-  for (const exe of executables) {
-    if (!commandExists(exe.cmd)) {
-      missing.push(exe)
-    }
-  }
-
-  if (missing.length > 0) {
-    console.error('Missing required executables:')
-    for (const exe of missing) {
-      console.error(`  - ${exe.name}: ${exe.url}`)
-    }
-    process.exit(1)
-  }
+// Check status of executables, returns array with installed status for each
+export function checkExecutables(executables) {
+  return executables.map((exe) => ({
+    ...exe,
+    installed: commandExists(exe.cmd),
+  }))
 }
 
 // Logger
