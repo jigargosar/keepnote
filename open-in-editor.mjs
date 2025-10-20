@@ -27,7 +27,7 @@ const editorConfig = (() => {
   }
 })()
 
-export default function openInEditor(filepath, lineNumber) {
+export default function openInEditor({ filepath, lineNumber }) {
   const { editorCmd, args } = editorConfig(filepath, lineNumber)
 
   const result = spawnSync(editorCmd, args, {
