@@ -29,19 +29,16 @@ function formatExecutableStatus(executables) {
   const CHECK_MARK = '\u2713'
   const CROSS_MARK = '\u2717'
 
-  const lines = []
-  for (const exe of executables) {
-
+  const lines = executables.map((exe) => {
     const status = exe.installed
       ? `${GREEN}${CHECK_MARK}${RESET} Installed`
       : `${RED}${CROSS_MARK}${RESET} Missing`
 
-    const line = exe.installed
+    return exe.installed
       ? `  ${status} ${exe.name}`
       : `  ${status} ${exe.name} - ${exe.url}`
+  })
 
-    lines.push(line)
-  }
   return lines.join('\n')
 }
 
@@ -91,7 +88,7 @@ Examples:
 
 function showVersion() {
   const packageJson = JSON.parse(
-    fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8')
+    fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
   )
   console.log(packageJson.version)
 }
