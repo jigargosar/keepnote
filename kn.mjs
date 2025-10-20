@@ -132,13 +132,12 @@ async function main() {
 
       const notesPath = getOrCreateNotesPath()
 
-      if (command.type === 'search') {
-        const result = await searchNote(notesPath)
-        openInEditor(result.filepath, result.lineNumber)
-      } else {
-        const result = createNote(command.title, notesPath)
-        openInEditor(result.filepath, result.lineNumber)
-      }
+      const result =
+        command.type === 'search'
+          ? await searchNote(notesPath)
+          : createNote(command.title, notesPath)
+
+      openInEditor(result.filepath, result.lineNumber)
       break
   }
 }
