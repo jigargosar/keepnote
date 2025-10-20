@@ -26,15 +26,20 @@ function formatExecutableStatus(executables) {
   const GREEN = '\x1b[32m'
   const RED = '\x1b[31m'
   const RESET = '\x1b[0m'
+  const CHECK_MARK = '\u2713'
+  const CROSS_MARK = '\u2717'
 
   const lines = []
   for (const exe of executables) {
+
     const status = exe.installed
-      ? `${GREEN}\u2713${RESET} Installed`
-      : `${RED}\u2717${RESET} Missing`
+      ? `${GREEN}${CHECK_MARK}${RESET} Installed`
+      : `${RED}${CROSS_MARK}${RESET} Missing`
+
     const line = exe.installed
       ? `  ${status} ${exe.name}`
       : `  ${status} ${exe.name} - ${exe.url}`
+
     lines.push(line)
   }
   return lines.join('\n')
