@@ -6,27 +6,29 @@ import {
   displayAndExitIfAnyDependencyMissing,
 } from './dependencies.mjs'
 
+function getVersion() {
+  const packageJson = JSON.parse(
+    fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
+  )
+  return packageJson.version
+}
+
 function showHelp() {
-  console.log(`Usage:
-  keepnote [OPTIONS]
+  console.log(`keepnote v${getVersion()}
 
-Options:
-  -h, --help       Show this help message
-  -v, --version    Show version number
+Usage:
+  keepnote [COMMAND]
 
-Examples:
-  keepnote --help     Show this help message
-  keepnote --version  Show version number
+Commands:
+  help             Show this help message
+  version          Show version number
 `)
 
   displayDependencyStatus()
 }
 
 function showVersion() {
-  const packageJson = JSON.parse(
-    fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
-  )
-  console.log(packageJson.version)
+  console.log(getVersion())
 }
 
 function parseCliCommand(argv) {
@@ -36,20 +38,16 @@ function parseCliCommand(argv) {
     return { type: 'help' }
   }
 
-  if (args[0]?.startsWith('-')) {
-    switch (args[0]) {
-      case '--help':
-      case '-h':
-        return { type: 'help' }
-      case '--version':
-      case '-v':
-        return { type: 'version' }
-      default:
-        return { type: 'unknown-flag', flag: args[0] }
-    }
-  }
+  const command = args[0]
 
-  return { type: 'unknown-command', command: args[0] }
+  switch (command) {
+    case 'help':
+      return { type: 'help' }
+    case 'version':
+      return { type: 'version' }
+    default:
+      return { type: 'unknown-command', command }
+  }
 }
 
 // Main logic
@@ -65,12 +63,6 @@ async function main() {
     case 'version':
       showVersion()
       process.exit(0)
-      break
-
-    case 'unknown-flag':
-      console.error(`Unknown option: ${command.flag}`)
-      showHelp()
-      process.exit(1)
       break
 
     case 'unknown-command':
