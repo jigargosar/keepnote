@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import filenamify from 'filenamify'
 
-// Format date as YYYY-MM-DD
 function getDateString() {
   const now = new Date()
   const year = now.getFullYear()
@@ -11,8 +10,7 @@ function getDateString() {
   return `${year}-${month}-${day}`
 }
 
-// Build filename for a new note with proper sanitization
-function buildNoteFilename(title) {
+function slugifyTitleToFilename(title) {
   const datePrefix = getDateString()
 
   // Step 1: Replace invalid filename chars with dash
@@ -35,13 +33,12 @@ function buildNoteFilename(title) {
  * @returns {{filepath: string, lineNumber: number}} Path to created note and line number for cursor
  */
 export default function createNote(title, notesPath) {
-  const filename = buildNoteFilename(title)
+  const filename = slugifyTitleToFilename(title)
   const filepath = path.join(notesPath, filename)
 
   const content = `# ${title}\n\n\n`
   fs.writeFileSync(filepath, content)
   console.log(`Created note: ${filepath}`)
 
-  // Return line 4 (after all content) for cursor position
   return { filepath, lineNumber: 4 }
 }
