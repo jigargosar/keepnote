@@ -10,7 +10,7 @@
   },
   "bin": {
     "kn": "./kn.mjs",
-    "keepnote": "./kn.mjs"
+    "keepnote": "./keepnote.mjs"
   },
   "files": [
     "*.mjs"
