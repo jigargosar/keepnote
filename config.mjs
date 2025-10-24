@@ -21,29 +21,20 @@ const DEFAULT_CONFIG_TEMPLATE = `# Keepnote Configuration File
 # editor = "${getDefaultEditor()}"
 `
 
-// Read config file, return empty object if not found
+// Read config file, ensuring it exists first
 function readConfig() {
-  try {
-    const content = fs.readFileSync(CONFIG_FILE, 'utf8')
-    return TOML.parse(content)
-  } catch (error) {
-    // Config file doesn't exist or is invalid
-    return {}
-  }
-}
-
-// Ensure config directory and file exist with template
-function ensureConfigFile() {
   fs.mkdirSync(CONFIG_DIR, { recursive: true })
 
   if (!fs.existsSync(CONFIG_FILE)) {
     fs.writeFileSync(CONFIG_FILE, DEFAULT_CONFIG_TEMPLATE, 'utf8')
   }
+
+  const content = fs.readFileSync(CONFIG_FILE, 'utf8')
+  return TOML.parse(content)
 }
 
 // Get notes path, creating notes directory if needed
 export function getOrCreateNotesPath() {
-  ensureConfigFile()
   const config = readConfig()
 
   const notesPath = config.notePath || DEFAULT_NOTES_PATH
@@ -54,7 +45,6 @@ export function getOrCreateNotesPath() {
 
 // Get editor executable name from config, env var, or default
 export function getEditorExecutableName() {
-  ensureConfigFile()
   const config = readConfig()
 
   return config.editor || getDefaultEditor()
@@ -62,6 +52,6 @@ export function getEditorExecutableName() {
 
 // Get config file path, creating file with template if needed
 export function getOrCreateConfigFilePath() {
-  ensureConfigFile()
+  readConfig()
   return CONFIG_FILE
 }
