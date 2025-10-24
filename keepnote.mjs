@@ -60,7 +60,6 @@ function parseCliCommand(argv) {
   }
 }
 
-// Main logic
 async function main() {
   const command = parseCliCommand(process.argv)
 
