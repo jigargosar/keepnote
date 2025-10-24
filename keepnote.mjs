@@ -2,7 +2,10 @@
 
 import fs from 'node:fs'
 import { displayDependencyStatus } from './dependencies.mjs'
-import { getOrCreateConfigFilePath } from './config.mjs'
+import {
+  getOrCreateConfigFilePath,
+  getOrCreateNotesPath,
+} from './config.mjs'
 import openInEditor from './open-in-editor.mjs'
 
 function getVersion() {
@@ -13,6 +16,9 @@ function getVersion() {
 }
 
 function showHelp() {
+  const notesPath = getOrCreateNotesPath()
+  const configPath = getOrCreateConfigFilePath()
+
   console.log(`keepnote v${getVersion()}
 
 Usage:
@@ -21,6 +27,10 @@ Usage:
 Commands:
   help             Show this help message
   config           Edit configuration file
+
+Paths:
+  Notes:  ${notesPath}
+  Config: ${configPath}
 `)
 
   displayDependencyStatus()

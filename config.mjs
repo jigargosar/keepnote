@@ -9,14 +9,12 @@ const CONFIG_FILE = path.join(CONFIG_DIR, 'config.toml')
 const DEFAULT_CONFIG_TEMPLATE = `# Keepnote Configuration File
 
 # Notes directory path
-# Where your notes will be stored
-# Default: ~/notes
-# notePath = "/home/user/my-notes"
+# Default:
+# notePath = "${path.join(os.homedir(), 'notes')}"
 
-# Editor command to use for opening notes
-# Falls back to $EDITOR environment variable if not set
-# Default: vim
-# editor = "code"
+# Editor command
+# Default:
+# editor = "${process.env.EDITOR || 'vim'}"
 `
 
 // Read config file, return empty object if not found
