@@ -1,16 +1,12 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs'
-import { spawnSync } from 'node:child_process'
 import {
   displayDependencyStatus,
   displayAndExitIfAnyDependencyMissing,
 } from './dependencies.mjs'
-import {
-  getOrCreateNotesPath,
-  getEditorExecutableName,
-  getOrCreateConfigFilePath,
-} from './config.mjs'
+import { getOrCreateConfigFilePath } from './config.mjs'
+import openInEditor from './open-in-editor.mjs'
 
 function getVersion() {
   const packageJson = JSON.parse(
@@ -36,33 +32,13 @@ Commands:
 }
 
 function showConfig() {
-  const notePath = getOrCreateNotesPath()
-  const editor = getEditorExecutableName()
   const configPath = getOrCreateConfigFilePath()
-
-  console.log('Current configuration:')
-  console.log(`  notePath: ${notePath}`)
-  console.log(`  editor:   ${editor}`)
-  console.log()
   console.log(`Config file: ${configPath}`)
 }
 
 function editConfig() {
   const configPath = getOrCreateConfigFilePath()
-  const editor = getEditorExecutableName()
-
-  // Open in editor
-  const result = spawnSync(editor, [configPath], {
-    stdio: 'inherit',
-    shell: true,
-  })
-
-  if (result.error) {
-    console.error('Failed to open editor:', result.error.message)
-    process.exit(1)
-  }
-
-  process.exit(result.status || 0)
+  openInEditor({ filepath: configPath })
 }
 
 function showVersion() {
