@@ -1,10 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs'
-import {
-  displayDependencyStatus,
-  displayAndExitIfAnyDependencyMissing,
-} from './dependencies.mjs'
+import { displayDependencyStatus } from './dependencies.mjs'
 import { getOrCreateConfigFilePath } from './config.mjs'
 import openInEditor from './open-in-editor.mjs'
 
@@ -23,26 +20,15 @@ Usage:
 
 Commands:
   help             Show this help message
-  version          Show version number
-  config           Show current configuration
-  config edit      Edit configuration file
+  config           Edit configuration file
 `)
 
   displayDependencyStatus()
 }
 
-function showConfig() {
-  const configPath = getOrCreateConfigFilePath()
-  console.log(`Config file: ${configPath}`)
-}
-
 function editConfig() {
   const configPath = getOrCreateConfigFilePath()
   openInEditor({ filepath: configPath })
-}
-
-function showVersion() {
-  console.log(getVersion())
 }
 
 function parseCliCommand(argv) {
@@ -53,18 +39,12 @@ function parseCliCommand(argv) {
   }
 
   const command = args[0]
-  const subcommand = args[1]
 
   switch (command) {
     case 'help':
       return { type: 'help' }
-    case 'version':
-      return { type: 'version' }
     case 'config':
-      if (subcommand === 'edit') {
-        return { type: 'config-edit' }
-      }
-      return { type: 'config-show' }
+      return { type: 'config' }
     default:
       return { type: 'unknown-command', command }
   }
@@ -80,17 +60,7 @@ async function main() {
       process.exit(0)
       break
 
-    case 'version':
-      showVersion()
-      process.exit(0)
-      break
-
-    case 'config-show':
-      showConfig()
-      process.exit(0)
-      break
-
-    case 'config-edit':
+    case 'config':
       editConfig()
       break
 
