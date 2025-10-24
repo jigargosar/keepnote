@@ -6,15 +6,19 @@ import TOML from '@iarna/toml'
 const CONFIG_DIR = path.join(os.homedir(), '.config', 'keepnote')
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.toml')
 
+// Default values
+const DEFAULT_NOTES_PATH = path.join(os.homedir(), 'notes')
+const getDefaultEditor = () => process.env.EDITOR || 'vim'
+
 const DEFAULT_CONFIG_TEMPLATE = `# Keepnote Configuration File
 
 # Notes directory path
 # Default:
-# notePath = "${path.join(os.homedir(), 'notes')}"
+# notePath = "${DEFAULT_NOTES_PATH}"
 
 # Editor command
 # Default:
-# editor = "${process.env.EDITOR || 'vim'}"
+# editor = "${getDefaultEditor()}"
 `
 
 // Read config file, return empty object if not found
@@ -42,7 +46,7 @@ export function getOrCreateNotesPath() {
   ensureConfigFile()
   const config = readConfig()
 
-  const notesPath = config.notePath || path.join(os.homedir(), 'notes')
+  const notesPath = config.notePath || DEFAULT_NOTES_PATH
   fs.mkdirSync(notesPath, { recursive: true })
 
   return notesPath
@@ -53,15 +57,7 @@ export function getEditorExecutableName() {
   ensureConfigFile()
   const config = readConfig()
 
-  if (config.editor) {
-    return config.editor
-  }
-
-  if (process.env.EDITOR) {
-    return process.env.EDITOR
-  }
-
-  return 'vim'
+  return config.editor || getDefaultEditor()
 }
 
 // Get config file path, creating file with template if needed
