@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import { getEditorExecutableName } from './config.mjs'
 
 // Editor configuration
 const editorConfig = (() => {
@@ -18,7 +19,7 @@ const editorConfig = (() => {
   }
 
   return function (filepath, lineNumber) {
-    const editorCmd = process.env.EDITOR || 'code'
+    const editorCmd = getEditorExecutableName()
     const normalizedEditor = editorCmd.replace(/\.(exe|cmd)$/i, '')
     const getArgs = EDITOR_CONFIGS[normalizedEditor] || ((fp) => [fp])
     const args = getArgs(filepath, lineNumber)

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@iarna/toml':
+        specifier: ^2.2.5
+        version: 2.2.5
       filenamify:
         specifier: ^7.0.0
         version: 7.0.0
@@ -17,6 +20,9 @@ importers:
         version: 3.6.2
 
 packages:
+
+  '@iarna/toml@2.2.5':
+    resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
 
   filename-reserved-regex@4.0.0:
     resolution: {integrity: sha512-9ZT504KxEQDamsOogZImAWGEN24R1uFAxU3ZS4AZqn2ooidmN68Olh7n4/RcA4lLatZztjA0ZSuxeLHVoCc8JA==}
@@ -32,6 +38,8 @@ packages:
     hasBin: true
 
 snapshots:
+
+  '@iarna/toml@2.2.5': {}
 
   filename-reserved-regex@4.0.0: {}
 

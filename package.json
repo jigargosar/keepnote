@@ -34,6 +34,7 @@
     "endOfLine": "lf"
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "filenamify": "^7.0.0"
   }
 }
