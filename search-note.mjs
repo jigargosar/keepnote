@@ -9,6 +9,8 @@ import {
 function spawnFzf(notesPath) {
   const toggleScriptPath = fileURLToPath(new URL('./get-next-mode.mjs', import.meta.url))
   const previewScriptPath = fileURLToPath(new URL('./preview-note.mjs', import.meta.url))
+  const deleteScriptPath = fileURLToPath(new URL('./delete-note.mjs', import.meta.url))
+  const reloadScriptPath = fileURLToPath(new URL('./get-reload-for-current-mode.mjs', import.meta.url))
 
   return spawnAndCapture(
     'fzf',
@@ -28,6 +30,8 @@ function spawnFzf(notesPath) {
       `start:reload(${fileContentSearchCommand(notesPath)})`,
       '--bind',
       `tab:transform(node ${toggleScriptPath} ${notesPath})`,
+      '--bind',
+      `ctrl-d:execute(node ${deleteScriptPath} ${notesPath} {1} < CON > CON 2>&1)+transform(node ${reloadScriptPath} ${notesPath})`,
     ],
     {
       stdio: ['pipe', 'pipe', 'inherit'],
