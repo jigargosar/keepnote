@@ -28,7 +28,7 @@ const contentModeCommand = [
   '.',
 ].join(' ')
 
-const filesModeCommand = 'rg --files'
+const filesModeCommand = 'rg --files --color=always'
 
 if (process.env.FZF_PROMPT === CONTENT_PROMPT) {
   console.log(`change-prompt(${FILES_PROMPT})+reload(cd ${notesPath} && ${filesModeCommand})`)

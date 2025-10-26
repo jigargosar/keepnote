@@ -50,8 +50,8 @@ function spawnRipgrep(notesPath) {
  * @returns {{promise: Promise<unknown>, process: ChildProcessWithoutNullStreams}}
  */
 function spawnFzf(notesPath) {
-  // Get absolute path to get-next-mode.mjs (in same directory as this file)
-  const scriptPath = fileURLToPath(new URL('./get-next-mode.mjs', import.meta.url))
+  const toggleScriptPath = fileURLToPath(new URL('./get-next-mode.mjs', import.meta.url))
+  const previewScriptPath = fileURLToPath(new URL('./preview-note.mjs', import.meta.url))
 
   return spawnAndCapture(
     'fzf',
@@ -62,13 +62,13 @@ function spawnFzf(notesPath) {
       '--delimiter',
       FIELD_SEPARATOR,
       '--preview',
-      'bat --color=always --style=numbers --highlight-line={2} {1}',
+      `node ${previewScriptPath} {1} {2}`,
       '--preview-window',
       'right:50%:wrap',
       '--prompt',
       'Content> ',
       '--bind',
-      `tab:transform(node ${scriptPath} ${notesPath})`,
+      `tab:transform(node ${toggleScriptPath} ${notesPath})`,
     ],
     {
       stdio: ['pipe', 'pipe', 'inherit'],
@@ -90,6 +90,14 @@ function parseRipgrepSelection(selection, notesPath) {
   // Split on field separator and extract first two fields
   const parts = selection.split(FIELD_SEPARATOR)
 
+  // Files mode: just filename, no separator or line number
+  if (parts.length === 1) {
+    const filename = parts[0]
+    const filepath = path.join(notesPath, filename)
+    return { filename, lineNumber: 1, filepath }
+  }
+
+  // Content mode: filename + line number
   if (parts.length < 2) {
     throw new Error('Could not parse selection: invalid format')
   }
