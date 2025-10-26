@@ -1,5 +1,6 @@
 import { spawnAndCapture } from './util.mjs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 // Field separator for ripgrep output (filename, line number, content)
 // Using double forward slash - single slash is forbidden in filenames,
@@ -49,6 +50,9 @@ function spawnRipgrep(notesPath) {
  * @returns {{promise: Promise<unknown>, process: ChildProcessWithoutNullStreams}}
  */
 function spawnFzf(notesPath) {
+  // Get absolute path to get-next-mode.mjs (in same directory as this file)
+  const scriptPath = fileURLToPath(new URL('./get-next-mode.mjs', import.meta.url))
+
   return spawnAndCapture(
     'fzf',
     [
@@ -61,6 +65,10 @@ function spawnFzf(notesPath) {
       'bat --color=always --style=numbers --highlight-line={2} {1}',
       '--preview-window',
       'right:50%:wrap',
+      '--prompt',
+      'Content> ',
+      '--bind',
+      `tab:transform(node ${scriptPath})`,
     ],
     {
       stdio: ['pipe', 'pipe', 'inherit'],
