@@ -68,7 +68,7 @@ function spawnFzf(notesPath) {
       '--prompt',
       'Content> ',
       '--bind',
-      `tab:transform(node ${scriptPath})`,
+      `tab:transform(node ${scriptPath} ${notesPath})`,
     ],
     {
       stdio: ['pipe', 'pipe', 'inherit'],
