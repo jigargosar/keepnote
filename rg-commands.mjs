@@ -11,7 +11,7 @@ const WINDOWS_RESERVED_GLOBS = [
   '--glob', '!LPT[1-9]',
 ]
 
-const CONTENT_MODE_ARGS = [
+const FILE_CONTENT_SEARCH_ARGS = [
   '--line-number',
   '--color=always',
   '--with-filename',
@@ -21,18 +21,18 @@ const CONTENT_MODE_ARGS = [
   '.',
 ]
 
-const FILES_MODE_ARGS = [
+const FILE_NAME_SEARCH_ARGS = [
   '--files',
   '--color=always',
   ...WINDOWS_RESERVED_GLOBS,
 ]
 
-export function getContentModeReloadCommand(notesPath) {
-  return `cd ${notesPath} && ${['rg', ...CONTENT_MODE_ARGS].join(' ')}`
+export function fileContentSearchCommand(notesPath) {
+  return `cd ${notesPath} && ${['rg', ...FILE_CONTENT_SEARCH_ARGS].join(' ')}`
 }
 
-export function getFilesModeReloadCommand(notesPath) {
-  return `cd ${notesPath} && ${['rg', ...FILES_MODE_ARGS].join(' ')}`
+export function fileNameSearchCommand(notesPath) {
+  return `cd ${notesPath} && ${['rg', ...FILE_NAME_SEARCH_ARGS].join(' ')}`
 }
 
 export function parseRipgrepSelection(selection, notesPath) {

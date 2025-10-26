@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { getContentModeReloadCommand, getFilesModeReloadCommand } from './rg-commands.mjs'
+import { fileContentSearchCommand, fileNameSearchCommand } from './rg-commands.mjs'
 
 const CONTENT_PROMPT = 'Content> '
 const FILES_PROMPT = 'Files> '
@@ -13,7 +13,7 @@ if (!notesPath) {
 }
 
 if (process.env.FZF_PROMPT === CONTENT_PROMPT) {
-  console.log(`change-prompt(${FILES_PROMPT})+reload(${getFilesModeReloadCommand(notesPath)})`)
+  console.log(`change-prompt(${FILES_PROMPT})+reload(${fileNameSearchCommand(notesPath)})`)
 } else {
-  console.log(`change-prompt(${CONTENT_PROMPT})+reload(${getContentModeReloadCommand(notesPath)})`)
+  console.log(`change-prompt(${CONTENT_PROMPT})+reload(${fileContentSearchCommand(notesPath)})`)
 }

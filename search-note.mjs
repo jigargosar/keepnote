@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import { spawnAndCapture } from './util.mjs'
 import {
-  getContentModeReloadCommand,
+  fileContentSearchCommand,
   FIELD_DELIMITER,
   parseRipgrepSelection
 } from './rg-commands.mjs'
@@ -25,7 +25,7 @@ function spawnFzf(notesPath) {
       '--prompt',
       'Content> ',
       '--bind',
-      `start:reload(${getContentModeReloadCommand(notesPath)})`,
+      `start:reload(${fileContentSearchCommand(notesPath)})`,
       '--bind',
       `tab:transform(node ${toggleScriptPath} ${notesPath})`,
     ],
