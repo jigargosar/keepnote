@@ -30,12 +30,12 @@ const rl = readline.createInterface({
   output: process.stdout,
 })
 
-rl.question(`Mock Delete: ${filename}? (y/N) `, (answer) => {
+rl.question(`Delete: ${filename}? (y/N) `, (answer) => {
   rl.close()
 
   if (answer.toLowerCase() === 'y') {
     try {
-      // fs.unlinkSync(filepath)
+      fs.unlinkSync(filepath)
       console.log(`Deleted: ${filename}`)
       process.exit(0)
     } catch (err) {
