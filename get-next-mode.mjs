@@ -1,12 +1,9 @@
 #!/usr/bin/env node
 
-// Helper script for fzf transform binding
-// Reads current prompt from FZF_PROMPT env var and outputs next mode command
+const CONTENT_PROMPT = 'Content> '
+const FILES_PROMPT = 'Files> '
 
-const currentPrompt = process.env.FZF_PROMPT || 'Content> '
+const currentPrompt = process.env.FZF_PROMPT
+const nextPrompt = currentPrompt === CONTENT_PROMPT ? FILES_PROMPT : CONTENT_PROMPT
 
-if (currentPrompt === 'Content> ') {
-  console.log('change-prompt(Files> )')
-} else {
-  console.log('change-prompt(Content> )')
-}
+console.log(`change-prompt(${nextPrompt})`)
