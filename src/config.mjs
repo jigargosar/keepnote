@@ -7,7 +7,7 @@ const CONFIG_DIR = path.join(os.homedir(), '.config', 'keepnote')
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.toml')
 
 const DEFAULT_NOTES_PATH = path.join(os.homedir(), 'notes')
-const DEFAULT_EDITOR = process.env.EDITOR || 'vim'
+const DEFAULT_EDITOR = process.env.EDITOR || 'code -w'
 
 const DEFAULT_CONFIG_TEMPLATE = `# Keepnote Configuration File
 
@@ -17,7 +17,7 @@ const DEFAULT_CONFIG_TEMPLATE = `# Keepnote Configuration File
 
 # Editor command
 # Default:
-# editor = "${getDefaultEditor()}"
+# editor = "$EDITOR or code -w"
 `
 
 function readConfig() {
@@ -42,7 +42,7 @@ export function getOrCreateNotesPath() {
 
 export function getEditorExecutableName() {
   const config = readConfig()
-  return config.editor || getDefaultEditor()
+  return config.editor || DEFAULT_EDITOR
 }
 
 // Get config file path, creating file with template if needed
