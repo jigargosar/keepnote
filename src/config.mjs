@@ -7,7 +7,7 @@ const CONFIG_DIR = path.join(os.homedir(), '.config', 'keepnote')
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.toml')
 
 const DEFAULT_NOTES_PATH = path.join(os.homedir(), 'notes')
-const getDefaultEditor = () => process.env.EDITOR || 'vim'
+const DEFAULT_EDITOR = process.env.EDITOR || 'vim'
 
 const DEFAULT_CONFIG_TEMPLATE = `# Keepnote Configuration File
 
