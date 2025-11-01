@@ -13,7 +13,7 @@ const DEFAULT_CONFIG_TEMPLATE = `# Keepnote Configuration File
 
 # Notes directory path
 # Default:
-# notePath = "${DEFAULT_NOTES_PATH}"
+# notePath = "~/notes"
 
 # Editor command
 # Default:
