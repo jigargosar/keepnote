@@ -13,7 +13,9 @@
     "keepnote": "./keepnote.mjs"
   },
   "files": [
-    "*.mjs"
+    "kn.mjs",
+    "keepnote.mjs",
+    "src/**/*.mjs"
   ],
   "keywords": [
     "cli",

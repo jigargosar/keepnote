@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import searchNote from './search-note.mjs'
-import createNote from './create-note.mjs'
-import openInEditor from './open-in-editor.mjs'
-import { displayAndExitIfAnyDependencyMissing } from './dependencies.mjs'
-import { getOrCreateNotesPath } from './config.mjs'
+import searchNote from './src/search-note.mjs'
+import createNote from './src/create-note.mjs'
+import openInEditor from './src/open-in-editor.mjs'
+import { displayAndExitIfAnyDependencyMissing } from './src/dependencies.mjs'
+import { getOrCreateNotesPath } from './src/config.mjs'
 
 // Main logic
 async function main() {

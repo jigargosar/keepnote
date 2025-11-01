@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs'
-import { displayDependencyStatus } from './dependencies.mjs'
+import { displayDependencyStatus } from './src/dependencies.mjs'
 import {
   getOrCreateConfigFilePath,
   getOrCreateNotesPath,
-} from './config.mjs'
-import openInEditor from './open-in-editor.mjs'
+} from './src/config.mjs'
+import openInEditor from './src/open-in-editor.mjs'
 
 function getVersion() {
   const packageJson = JSON.parse(
@@ -27,6 +27,7 @@ Usage:
 Commands:
   help             Show this help message
   config           Edit configuration file
+  git <command>    Run git commands in notes directory
 
 Paths:
   Notes:  ${notesPath}
@@ -39,6 +40,10 @@ Paths:
 function editConfig() {
   const configPath = getOrCreateConfigFilePath()
   openInEditor({ filepath: configPath })
+}
+
+function runGitCommand(notesDir, gitArgs) {
+  console.log(`git ${gitArgs.join(' ')}`)
 }
 
 function parseCliCommand(argv) {
@@ -55,6 +60,8 @@ function parseCliCommand(argv) {
       return { type: 'help' }
     case 'config':
       return { type: 'config' }
+    case 'git':
+      return { type: 'git', args: args.slice(1) }
     default:
       return { type: 'unknown-command', command }
   }
@@ -71,6 +78,11 @@ async function main() {
 
     case 'config':
       editConfig()
+      break
+
+    case 'git':
+      const notesPath = getOrCreateNotesPath()
+      runGitCommand(notesPath, command.args)
       break
 
     case 'unknown-command':
