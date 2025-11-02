@@ -19,6 +19,8 @@ function spawnFzf(notesPath) {
       '--no-mouse',
       '--layout=reverse',
       '--header=Git: 5 untracked, 2 modified',
+      '--header-first',
+      '--color=header:yellow,info:8',
       // '--color=dark',
       `--delimiter=${FIELD_DELIMITER}`,
       `--preview=node ${previewScriptPath} {1} {2}`,
