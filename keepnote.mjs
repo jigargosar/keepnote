@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs'
+import { spawnAndCapture } from './src/util.mjs'
 import { displayDependencyStatus } from './src/dependencies.mjs'
 import {
   getOrCreateConfigFilePath,
@@ -42,8 +43,13 @@ function editConfig() {
   openInEditor({ filepath: configPath })
 }
 
-function runGitCommand(notesDir, gitArgs) {
-  console.log(`git ${gitArgs.join(' ')}`)
+async function runGitCommand(notesDir, gitArgs) {
+  const { promise } = spawnAndCapture('git', gitArgs, {
+    stdio: 'inherit',
+    cwd: notesDir,
+  })
+  const { code } = await promise
+  process.exit(code)
 }
 
 function parseCliCommand(argv) {
@@ -82,7 +88,7 @@ async function main() {
 
     case 'git':
       const notesPath = getOrCreateNotesPath()
-      runGitCommand(notesPath, command.args)
+      await runGitCommand(notesPath, command.args)
       break
 
     case 'unknown-command':
