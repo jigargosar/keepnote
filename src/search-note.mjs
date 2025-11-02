@@ -33,6 +33,8 @@ function spawnFzf(notesPath) {
       `tab:transform(node ${toggleScriptPath} ${notesPath})`,
       '--bind',
       `ctrl-d:execute(node ${deleteScriptPath} ${notesPath} {1} < CON > CON 2>&1)+transform(node ${reloadScriptPath} ${notesPath})`,
+      '--bind',
+      'change:first',
     ],
     {
       stdio: ['pipe', 'pipe', 'inherit'],
