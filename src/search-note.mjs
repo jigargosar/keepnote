@@ -17,6 +17,7 @@ function spawnFzf(notesPath) {
     [
       '--ansi',
       '--no-mouse',
+      '--layout=reverse',
       // '--color=dark',
       '--delimiter',
       FIELD_DELIMITER,
