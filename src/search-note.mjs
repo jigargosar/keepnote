@@ -18,6 +18,7 @@ function spawnFzf(notesPath) {
       '--ansi',
       '--no-mouse',
       '--layout=reverse',
+      '--header=Git: 5 untracked, 2 modified',
       // '--color=dark',
       `--delimiter=${FIELD_DELIMITER}`,
       `--preview=node ${previewScriptPath} {1} {2}`,
