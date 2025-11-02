@@ -77,11 +77,11 @@ export default async function searchNote(notesPath) {
   const FZF_EXIT_CODE_USER_CANCELLED = 130
 
   if (code === FZF_EXIT_CODE_USER_CANCELLED) {
-    process.exit(0)
+    return null
   }
 
   if (!output) {
-    process.exit(0)
+    return null
   }
 
   const parsed = parseRipgrepSelection(output, notesPath)

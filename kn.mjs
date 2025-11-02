@@ -6,11 +6,24 @@
 // - Prompt user to add/commit/push after creating or editing file
 // - Consider add/commit workflow integration for simplified UX
 
+import { execSync } from 'node:child_process'
 import searchNote from './src/search-note.mjs'
 import createNote from './src/create-note.mjs'
 import openInEditor from './src/open-in-editor.mjs'
 import { displayAndExitIfAnyDependencyMissing } from './src/dependencies.mjs'
 import { getOrCreateNotesPath } from './src/config.mjs'
+
+function showGitStatus(notesPath) {
+  try {
+    console.log('\nGit Status:')
+    execSync('git status --short', {
+      cwd: notesPath,
+      stdio: 'inherit',
+    })
+  } catch (error) {
+    // Silently ignore git errors (e.g., not a git repo)
+  }
+}
 
 // Main logic
 async function main() {
@@ -19,12 +32,19 @@ async function main() {
   const args = process.argv.slice(2)
   const notesPath = getOrCreateNotesPath()
 
-  const { filepath, lineNumber } =
-    args.length === 0
-      ? await searchNote(notesPath)
-      : createNote(args.join(' '), notesPath)
+  try {
+    const result =
+      args.length === 0
+        ? await searchNote(notesPath)
+        : createNote(args.join(' '), notesPath)
 
-  openInEditor({ filepath, lineNumber })
+    if (result) {
+      const { filepath, lineNumber } = result
+      openInEditor({ filepath, lineNumber })
+    }
+  } finally {
+    showGitStatus(notesPath)
+  }
 }
 
 await main()
