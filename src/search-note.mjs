@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url'
+import { execSync } from 'node:child_process'
 import { spawnAndCapture } from './util.mjs'
 import {
   fileContentSearchCommand,
@@ -6,7 +7,35 @@ import {
   parseRipgrepSelection
 } from './rg-commands.mjs'
 
-function spawnFzf(notesPath) {
+function getGitStatusHeader(notesPath) {
+  try {
+    const output = execSync('git status --porcelain', {
+      cwd: notesPath,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore']
+    })
+
+    const lines = output.trim().split('\n').filter(line => line)
+
+    let untracked = 0
+    let modified = 0
+
+    for (const line of lines) {
+      const status = line.substring(0, 2)
+      if (status.includes('?')) {
+        untracked++
+      } else if (status.trim()) {
+        modified++
+      }
+    }
+
+    return `Git: ${untracked} untracked, ${modified} modified`
+  } catch (error) {
+    return 'Git: status unavailable'
+  }
+}
+
+function spawnFzf(notesPath, headerText) {
   const toggleScriptPath = fileURLToPath(new URL('./get-next-mode.mjs', import.meta.url))
   const previewScriptPath = fileURLToPath(new URL('./preview-note.mjs', import.meta.url))
   const deleteScriptPath = fileURLToPath(new URL('./delete-note.mjs', import.meta.url))
@@ -18,7 +47,7 @@ function spawnFzf(notesPath) {
       '--ansi',
       '--no-mouse',
       '--layout=reverse',
-      '--header=Git: 5 untracked, 2 modified',
+      `--header=${headerText}`,
       '--header-first',
       '--color=header:yellow,info:8,bg+:237,prompt:39',
       // '--color=dark',
@@ -40,7 +69,8 @@ function spawnFzf(notesPath) {
 
 
 export default async function searchNote(notesPath) {
-  const fzf = spawnFzf(notesPath)
+  const headerText = getGitStatusHeader(notesPath)
+  const fzf = spawnFzf(notesPath, headerText)
 
   const { code, output } = await fzf.promise
 
