@@ -54,22 +54,23 @@ function showGitStatus(notesPath) {
   const commitsAhead =
     upstreamStatus === 0 ? parseInt(upstreamOutput.trim(), 10) || 0 : 0
 
-  const pushStatus =
-    commitsAhead > 0
-      ? `${YELLOW}${commitsAhead} commit${commitsAhead > 1 ? 's' : ''} to push${RESET}`
-      : `${GREEN}no push pending${RESET}`
-
-  console.log(pushStatus)
-
   // 4. Check working directory status
   const { output: statusOutput } = runGitCommand(['status', '--porcelain'], notesPath)
   const hasChanges = statusOutput.trim().length > 0
 
   if (hasChanges) {
-    console.log(statusOutput.trim())
+    console.log(statusOutput.trimEnd())
   } else {
     console.log(`${GREEN}clean${RESET}`)
   }
+
+  const pushStatus =
+    commitsAhead > 0
+      ? `${YELLOW}Push pending: ${commitsAhead} commit${commitsAhead > 1 ? 's' : ''}${RESET}`
+      : `${GREEN}Push pending: none${RESET}`
+
+  console.log()
+  console.log(pushStatus)
   console.log()
 }
 
