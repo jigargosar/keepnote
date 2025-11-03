@@ -6,6 +6,13 @@ const YELLOW = '\x1b[33m'
 const BOLD = '\x1b[1m'
 const RESET = '\x1b[0m'
 
+const SyncAction = {
+  NOTHING_TO_SYNC: { type: 'nothing-to-sync' },
+  COMMIT_ONLY: { type: 'commit-only' },
+  PUSH_ONLY: { type: 'push-only' },
+  COMMIT_AND_PUSH: { type: 'commit-and-push' },
+}
+
 function runGitCommandSync(args, notesPath) {
   const result = spawnSync('git', args, {
     cwd: notesPath,
@@ -31,6 +38,22 @@ Initialize with:
 `)
     process.exit(1)
   }
+}
+
+function initSyncAction({ hasChanges, hasUpstream, commitsAhead }) {
+  if (!hasChanges && (!hasUpstream || commitsAhead === 0)) {
+    return SyncAction.NOTHING_TO_SYNC
+  }
+
+  if (hasChanges && !hasUpstream) {
+    return SyncAction.COMMIT_ONLY
+  }
+
+  if (!hasChanges && hasUpstream && commitsAhead > 0) {
+    return SyncAction.PUSH_ONLY
+  }
+
+  return SyncAction.COMMIT_AND_PUSH
 }
 
 function showGitStatus(notesPath) {
@@ -66,10 +89,16 @@ function showGitStatus(notesPath) {
   }
 
   console.log()
+
+  const hasUpstream = upstreamExitCode === 0
+  const commitsAhead = hasUpstream ? parseInt(upstreamOutput.trim(), 10) || 0 : 0
+
+  return initSyncAction({ hasChanges, hasUpstream, commitsAhead })
 }
 
 export default function syncNotes(notesPath) {
   checkGitRepo(notesPath)
-  showGitStatus(notesPath)
-  console.log('TODO: Show commands and prompt')
+  const action = showGitStatus(notesPath)
+
+  console.log('Action determined:', action.type)
 }
