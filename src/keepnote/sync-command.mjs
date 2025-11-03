@@ -22,7 +22,7 @@ function runGitCommandSync(args, notesPath) {
   return { exitCode: result.status, output: result.stdout || '' }
 }
 
-function checkGitRepo(notesPath) {
+function ensureGitRepoOrExit(notesPath) {
   const { exitCode: repoExitCode } = runGitCommandSync(
     ['rev-parse', '--git-dir'],
     notesPath,
@@ -56,7 +56,7 @@ function initSyncAction({ hasChanges, hasUpstream, commitsAhead }) {
   return SyncAction.COMMIT_AND_PUSH
 }
 
-function showGitStatus(notesPath) {
+function displayGitStatusAndInitAction(notesPath) {
   const { output: statusOutput } = runGitCommandSync(
     ['status', '--porcelain'],
     notesPath,
@@ -97,8 +97,8 @@ function showGitStatus(notesPath) {
 }
 
 export default function syncNotes(notesPath) {
-  checkGitRepo(notesPath)
-  const action = showGitStatus(notesPath)
+  ensureGitRepoOrExit(notesPath)
+  const action = displayGitStatusAndInitAction(notesPath)
 
   console.log('Action determined:', action.type)
 }
