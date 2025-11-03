@@ -8,6 +8,10 @@ import {
 } from './rg-commands.mjs'
 
 function getGitStatusHeader(notesPath) {
+  const GREEN = '\x1b[32m'
+  const YELLOW = '\x1b[33m'
+  const RESET = '\x1b[0m'
+
   try {
     const output = execSync('git status --porcelain', {
       cwd: notesPath,
@@ -16,6 +20,10 @@ function getGitStatusHeader(notesPath) {
     })
 
     const lines = output.trim().split('\n').filter(line => line)
+
+    if (lines.length === 0) {
+      return `Git status: ${GREEN}clean${RESET}`
+    }
 
     let untracked = 0
     let modified = 0
@@ -29,9 +37,9 @@ function getGitStatusHeader(notesPath) {
       }
     }
 
-    return `Git: ${untracked} untracked, ${modified} modified`
+    return `Git status: ${YELLOW}${untracked} untracked, ${modified} modified${RESET}`
   } catch (error) {
-    return 'Git: status unavailable'
+    return 'Git status: unavailable'
   }
 }
 
