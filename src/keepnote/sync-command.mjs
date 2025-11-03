@@ -119,14 +119,11 @@ function displayGitStatusAndInitAction(notesPath) {
   return initSyncAction({ hasChanges, hasUpstream, commitsAhead })
 }
 
-export default async function syncNotes(notesPath) {
-  ensureGitRepoOrExit(notesPath)
-  const action = displayGitStatusAndInitAction(notesPath)
-
+function displayCommandsToRun(action) {
   switch (action) {
     case SyncAction.NOTHING_TO_SYNC:
       console.log('Already up to date')
-      return
+      return false
 
     case SyncAction.COMMIT_ONLY:
       console.log('Will run:')
@@ -148,12 +145,26 @@ export default async function syncNotes(notesPath) {
   }
 
   console.log()
+  return true
+}
+
+async function confirmExecution() {
   const response = await promptUser('Continue? [Y/n] ')
 
   if (response.toLowerCase() === 'n' || response.toLowerCase() === 'no') {
     console.log('Aborted')
-    return
+    return false
   }
+
+  return true
+}
+
+export default async function syncNotes(notesPath) {
+  ensureGitRepoOrExit(notesPath)
+  const action = displayGitStatusAndInitAction(notesPath)
+
+  if (!displayCommandsToRun(action)) return
+  if (!(await confirmExecution())) return
 
   console.log('TODO: Execute commands')
 }
