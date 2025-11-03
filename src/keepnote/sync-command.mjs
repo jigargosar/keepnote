@@ -167,13 +167,20 @@ async function confirmExecution() {
 
 function executeCommands(commands, notesPath) {
   for (const args of commands) {
-    const { exitCode, output } = runGitCommandSync(args, notesPath)
+    const result = spawnSync('git', args, {
+      cwd: notesPath,
+      encoding: 'utf8',
+      stdio: 'inherit',
+    })
 
-    if (exitCode !== 0) {
+    if (result.status !== 0) {
       console.error(`${RED}Error: git ${args.join(' ')} failed${RESET}`)
       process.exit(1)
     }
   }
+
+  console.log()
+  console.log(`${GREEN}✓ Synced successfully${RESET}`)
 }
 
 export default async function syncNotes(notesPath) {
