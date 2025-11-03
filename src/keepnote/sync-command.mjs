@@ -1,5 +1,11 @@
 import { spawnSync } from 'node:child_process'
 
+const RED = '\x1b[31m'
+const GREEN = '\x1b[32m'
+const YELLOW = '\x1b[33m'
+const BOLD = '\x1b[1m'
+const RESET = '\x1b[0m'
+
 function runGitCommandSync(args, notesPath) {
   const result = spawnSync('git', args, {
     cwd: notesPath,
@@ -9,14 +15,7 @@ function runGitCommandSync(args, notesPath) {
   return { exitCode: result.status, output: result.stdout || '' }
 }
 
-export default function syncNotes(notesPath) {
-  const RED = '\x1b[31m'
-  const GREEN = '\x1b[32m'
-  const YELLOW = '\x1b[33m'
-  const BOLD = '\x1b[1m'
-  const RESET = '\x1b[0m'
-
-  // Check if git repo exists
+function checkGitRepo(notesPath) {
   const { exitCode: repoExitCode } = runGitCommandSync(
     ['rev-parse', '--git-dir'],
     notesPath,
@@ -32,8 +31,9 @@ Initialize with:
 `)
     process.exit(1)
   }
+}
 
-  // Show git status
+function showGitStatus(notesPath) {
   const { output: statusOutput } = runGitCommandSync(
     ['status', '--porcelain'],
     notesPath,
@@ -49,7 +49,6 @@ Initialize with:
 
   console.log()
 
-  // Check for unpushed commits
   const { exitCode: upstreamExitCode, output: upstreamOutput } =
     runGitCommandSync(['rev-list', '@{u}..HEAD', '--count'], notesPath)
 
@@ -67,5 +66,10 @@ Initialize with:
   }
 
   console.log()
+}
+
+export default function syncNotes(notesPath) {
+  checkGitRepo(notesPath)
+  showGitStatus(notesPath)
   console.log('TODO: Show commands and prompt')
 }
