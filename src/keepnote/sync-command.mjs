@@ -22,6 +22,14 @@ function runGitCommandSync(args, notesPath) {
   return { exitCode: result.status, output: result.stdout || '' }
 }
 
+function getCurrentLocalDate() {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 function ensureGitRepoOrExit(notesPath) {
   const { exitCode: repoExitCode } = runGitCommandSync(
     ['rev-parse', '--git-dir'],
@@ -100,5 +108,30 @@ export default function syncNotes(notesPath) {
   ensureGitRepoOrExit(notesPath)
   const action = displayGitStatusAndInitAction(notesPath)
 
-  console.log('Action determined:', action.type)
+  switch (action) {
+    case SyncAction.NOTHING_TO_SYNC:
+      console.log('Already up to date')
+      return
+
+    case SyncAction.COMMIT_ONLY:
+      console.log('Will run:')
+      console.log('  git add --all')
+      console.log(`  git commit -m "${getCurrentLocalDate()} -- Synced"`)
+      break
+
+    case SyncAction.PUSH_ONLY:
+      console.log('Will run:')
+      console.log('  git push')
+      break
+
+    case SyncAction.COMMIT_AND_PUSH:
+      console.log('Will run:')
+      console.log('  git add --all')
+      console.log(`  git commit -m "${getCurrentLocalDate()} -- Synced"`)
+      console.log('  git push')
+      break
+  }
+
+  console.log()
+  console.log('TODO: Prompt for confirmation')
 }
