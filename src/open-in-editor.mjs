@@ -38,8 +38,8 @@ export default function openInEditor({ filepath, lineNumber }) {
 
   if (result.error) {
     console.error('Failed to open editor:', result.error.message)
-    process.exit(1)
+    return { exitCode: 1 }
   }
 
-  process.exit(result.status || 0)
+  return { exitCode: result.status || 0 }
 }

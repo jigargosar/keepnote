@@ -40,7 +40,7 @@ Paths:
 
 function editConfig() {
   const configPath = getOrCreateConfigFilePath()
-  openInEditor({ filepath: configPath })
+  return openInEditor({ filepath: configPath })
 }
 
 async function runGitCommand(notesDir, gitArgs) {
@@ -83,7 +83,8 @@ async function main() {
       break
 
     case 'config':
-      editConfig()
+      const { exitCode } = editConfig()
+      process.exit(exitCode)
       break
 
     case 'git':

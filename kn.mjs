@@ -32,6 +32,8 @@ async function main() {
   const args = process.argv.slice(2)
   const notesPath = getOrCreateNotesPath()
 
+  let exitCode = 0
+
   try {
     const result =
       args.length === 0
@@ -40,11 +42,14 @@ async function main() {
 
     if (result) {
       const { filepath, lineNumber } = result
-      openInEditor({ filepath, lineNumber })
+      const { exitCode: editorExitCode } = openInEditor({ filepath, lineNumber })
+      exitCode = editorExitCode
     }
   } finally {
     showGitStatus(notesPath)
   }
+
+  process.exit(exitCode)
 }
 
 await main()
