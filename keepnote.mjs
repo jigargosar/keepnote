@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs'
-import { spawnSync } from 'node:child_process'
 import { spawnAndCapture } from './src/util.mjs'
 import { displayDependencyStatus } from './src/dependencies.mjs'
 import { getOrCreateConfigFilePath, getOrCreateNotesPath, } from './src/config.mjs'
 import openInEditor from './src/open-in-editor.mjs'
+import syncNotes from './src/sync-notes-command.mjs'
 
 function getVersion() {
   const packageJson = JSON.parse(
@@ -41,15 +41,6 @@ function editConfig() {
   return openInEditor({ filepath: configPath })
 }
 
-function runGitCommandSync(args, notesPath) {
-  const result = spawnSync('git', args, {
-    cwd: notesPath,
-    encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'ignore'],
-  })
-  return { exitCode: result.status, output: result.stdout || '' }
-}
-
 async function runGitCommand(notesDir, gitArgs) {
   const { promise } = spawnAndCapture('git', gitArgs, {
     stdio: 'inherit',
@@ -57,30 +48,6 @@ async function runGitCommand(notesDir, gitArgs) {
   })
   const { code } = await promise
   process.exit(code)
-}
-
-function syncNotes(notesPath) {
-  const RED = '\x1b[31m'
-  const RESET = '\x1b[0m'
-
-  // Check if git repo exists
-  const { exitCode: repoExitCode } = runGitCommandSync(
-    ['rev-parse', '--git-dir'],
-    notesPath,
-  )
-
-  if (repoExitCode !== 0) {
-    console.error(`${RED}Error: Not a git repository${RESET}
-
-Initialize with:
-  keepnote git init
-  keepnote git remote add origin <url>
-  keepnote git push -u origin main
-`)
-    process.exit(1)
-  }
-
-  console.log('TODO: Implement rest of sync flow')
 }
 
 function parseCliCommand(argv) {
