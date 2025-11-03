@@ -20,6 +20,7 @@ function runGitCommand(args, notesPath) {
   return { status: result.status, output: result.stdout || '' }
 }
 
+// noinspection JSUnusedLocalSymbols
 function showGitStatus(notesPath) {
   const CYAN = '\x1b[36m'
   const GREEN = '\x1b[32m'
@@ -93,7 +94,8 @@ async function main() {
       exitCode = editorExitCode
     }
   } finally {
-    showGitStatus(notesPath)
+    // commenting now for reconsideration if output noise is worth it.
+    // showGitStatus(notesPath)
   }
 
   process.exit(exitCode)
