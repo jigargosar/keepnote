@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import * as readline from 'node:readline'
 
 const RED = '\x1b[31m'
 const GREEN = '\x1b[32m'
@@ -28,6 +29,20 @@ function getCurrentLocalDate() {
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
+}
+
+function promptUser(question) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close()
+      resolve(answer.trim())
+    })
+  })
 }
 
 function ensureGitRepoOrExit(notesPath) {
@@ -104,7 +119,7 @@ function displayGitStatusAndInitAction(notesPath) {
   return initSyncAction({ hasChanges, hasUpstream, commitsAhead })
 }
 
-export default function syncNotes(notesPath) {
+export default async function syncNotes(notesPath) {
   ensureGitRepoOrExit(notesPath)
   const action = displayGitStatusAndInitAction(notesPath)
 
@@ -133,5 +148,12 @@ export default function syncNotes(notesPath) {
   }
 
   console.log()
-  console.log('TODO: Prompt for confirmation')
+  const response = await promptUser('Continue? [Y/n] ')
+
+  if (response.toLowerCase() === 'n' || response.toLowerCase() === 'no') {
+    console.log('Aborted')
+    return
+  }
+
+  console.log('TODO: Execute commands')
 }

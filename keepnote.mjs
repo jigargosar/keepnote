@@ -88,7 +88,7 @@ async function main() {
       break
 
     case 'sync':
-      syncNotes(getOrCreateNotesPath())
+      await syncNotes(getOrCreateNotesPath())
       break
 
     case 'git':
