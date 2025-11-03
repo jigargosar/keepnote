@@ -33,7 +33,7 @@ function showGitStatus(notesPath) {
   // 1. Check if git is installed
   const gitCheck = spawnSync('git', ['--version'], { stdio: 'ignore' })
   if (gitCheck.error) {
-    console.log(`${YELLOW}Warn - git not installed${RESET}`)
+    console.log(`${YELLOW}Warn: git not installed${RESET}`)
     console.log()
     return
   }
@@ -41,7 +41,7 @@ function showGitStatus(notesPath) {
   // 2. Check if it's a git repository
   const { status: repoStatus } = runGitCommand(['rev-parse', '--git-dir'], notesPath)
   if (repoStatus !== 0) {
-    console.log(`${YELLOW}Warn - not a git repository${RESET}`)
+    console.log(`${YELLOW}Warn: not a git repository${RESET}`)
     console.log()
     return
   }
