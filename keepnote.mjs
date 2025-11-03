@@ -5,7 +5,7 @@ import { spawnAndCapture } from './src/util.mjs'
 import { displayDependencyStatus } from './src/dependencies.mjs'
 import { getOrCreateConfigFilePath, getOrCreateNotesPath, } from './src/config.mjs'
 import openInEditor from './src/open-in-editor.mjs'
-import syncNotes from './src/sync-notes-command.mjs'
+import syncNotes from './src/keepnote/sync-command.mjs'
 
 function getVersion() {
   const packageJson = JSON.parse(
