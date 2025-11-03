@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 
 // Git integration ideas:
-// - Show static git status header in fzf (repo overview)
-// - Show git status after file edit completes
 // - Prompt user to add/commit/push after creating or editing file
 // - Consider add/commit workflow integration for simplified UX
 
-import { execSync, spawnSync } from 'node:child_process'
+import { spawnSync } from 'node:child_process'
 import searchNote from './src/search-note.mjs'
 import createNote from './src/create-note.mjs'
 import openInEditor from './src/open-in-editor.mjs'
