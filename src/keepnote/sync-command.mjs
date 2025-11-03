@@ -119,31 +119,37 @@ function displayGitStatusAndInitAction(notesPath) {
   return initSyncAction({ hasChanges, hasUpstream, commitsAhead })
 }
 
-function displayCommandsToRun(action) {
+function buildGitCommands(action) {
+  const commitMsg = `${getCurrentLocalDate()} -- Synced`
+
   switch (action) {
     case SyncAction.NOTHING_TO_SYNC:
-      console.log('Already up to date')
-      return false
+      return []
 
     case SyncAction.COMMIT_ONLY:
-      console.log('Will run:')
-      console.log('  git add --all')
-      console.log(`  git commit -m "${getCurrentLocalDate()} -- Synced"`)
-      break
+      return [['add', '--all'], ['commit', '-m', commitMsg]]
 
     case SyncAction.PUSH_ONLY:
-      console.log('Will run:')
-      console.log('  git push')
-      break
+      return [['push']]
 
     case SyncAction.COMMIT_AND_PUSH:
-      console.log('Will run:')
-      console.log('  git add --all')
-      console.log(`  git commit -m "${getCurrentLocalDate()} -- Synced"`)
-      console.log('  git push')
-      break
+      return [['add', '--all'], ['commit', '-m', commitMsg], ['push']]
+
+    default:
+      return []
+  }
+}
+
+function displayCommandsToRun(commands) {
+  if (commands.length === 0) {
+    console.log('Already up to date')
+    return false
   }
 
+  console.log('Will run:')
+  for (const args of commands) {
+    console.log(`  git ${args.join(' ')}`)
+  }
   console.log()
   return true
 }
@@ -159,12 +165,25 @@ async function confirmExecution() {
   return true
 }
 
+function executeCommands(commands, notesPath) {
+  for (const args of commands) {
+    const { exitCode, output } = runGitCommandSync(args, notesPath)
+
+    if (exitCode !== 0) {
+      console.error(`${RED}Error: git ${args.join(' ')} failed${RESET}`)
+      process.exit(1)
+    }
+  }
+}
+
 export default async function syncNotes(notesPath) {
   ensureGitRepoOrExit(notesPath)
   const action = displayGitStatusAndInitAction(notesPath)
 
-  if (!displayCommandsToRun(action)) return
+  const commands = buildGitCommands(action)
+
+  if (!displayCommandsToRun(commands)) return
   if (!(await confirmExecution())) return
 
-  console.log('TODO: Execute commands')
+  executeCommands(commands, notesPath)
 }
