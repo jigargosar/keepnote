@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 
 import { fileContentSearchCommand, fileNameSearchCommand } from './rg-commands.mjs'
-
-const CONTENT_PROMPT = 'Content> '
-const FILES_PROMPT = 'Files> '
+import { FZF_PROMPTS } from './keepnote/constants.mjs'
 
 const notesPath = process.argv[2]
 
@@ -12,8 +10,8 @@ if (!notesPath) {
   process.exit(1)
 }
 
-if (process.env.FZF_PROMPT === CONTENT_PROMPT) {
-  console.log(`change-prompt(${FILES_PROMPT})+reload(${fileNameSearchCommand(notesPath)})`)
+if (process.env.FZF_PROMPT === FZF_PROMPTS.CONTENT) {
+  console.log(`change-prompt(${FZF_PROMPTS.FILES})+reload(${fileNameSearchCommand(notesPath)})`)
 } else {
-  console.log(`change-prompt(${CONTENT_PROMPT})+reload(${fileContentSearchCommand(notesPath)})`)
+  console.log(`change-prompt(${FZF_PROMPTS.CONTENT})+reload(${fileContentSearchCommand(notesPath)})`)
 }

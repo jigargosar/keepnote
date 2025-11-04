@@ -6,6 +6,7 @@ import {
   FIELD_DELIMITER,
   parseRipgrepSelection
 } from './rg-commands.mjs'
+import { FZF_PROMPTS } from './keepnote/constants.mjs'
 
 function getGitStatusHeader(notesPath) {
   const GREEN = '\x1b[32m'
@@ -71,7 +72,7 @@ function spawnFzf(notesPath) {
       `--delimiter=${FIELD_DELIMITER}`,
       `--preview=node ${previewScriptPath} {1} {2}`,
       '--preview-window=right:30%:wrap',
-      '--prompt=Content> ',
+      `--prompt=${FZF_PROMPTS.CONTENT}`,
       `--bind=start:reload(${fileContentSearchCommand(notesPath)})`,
       `--bind=tab:transform(node ${toggleScriptPath} ${notesPath})`,
       `--bind=ctrl-d:execute(node ${deleteScriptPath} ${notesPath} {1} < CON > CON 2>&1)+transform(node ${reloadScriptPath} ${notesPath})`,
