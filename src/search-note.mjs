@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { execSync } from 'node:child_process'
+import { spawnSync } from 'node:child_process'
 import { spawnAndCapture } from './util.mjs'
 import {
   fileContentSearchCommand,
@@ -10,37 +10,50 @@ import {
 function getGitStatusHeader(notesPath) {
   const GREEN = '\x1b[32m'
   const YELLOW = '\x1b[33m'
+  const RED = '\x1b[31m'
+  const ORANGE = '\x1b[33m' // Using yellow as orange approximation
   const RESET = '\x1b[0m'
 
-  try {
-    const output = execSync('git status --porcelain', {
-      cwd: notesPath,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'ignore']
-    })
+  const result = spawnSync('git', ['status', '--porcelain'], {
+    cwd: notesPath,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe']
+  })
 
-    const lines = output.trim().split('\n').filter(line => line)
+  // Exit code 128 typically means not a git repository
+  if (result.status === 128) {
+    return `${ORANGE}Git status: not a repository (use keepnote git init)${RESET}`
+  }
 
-    if (lines.length === 0) {
-      return `Git status: ${GREEN}clean${RESET}`
-    }
+  // Other non-zero exit codes
+  if (result.status !== 0) {
+    const errorMsg = result.stderr?.trim() || 'unknown error'
+    return `${RED}Git status: error (${errorMsg})${RESET}`
+  }
 
-    let untracked = 0
-    let modified = 0
+  const lines = result.stdout.trim().split('\n').filter(line => line)
 
-    for (const line of lines) {
+  const { untracked, modified } = lines.reduce(
+    (counts, line) => {
       const status = line.substring(0, 2)
       if (status.includes('?')) {
-        untracked++
+        return { ...counts, untracked: counts.untracked + 1 }
       } else if (status.trim()) {
-        modified++
+        return { ...counts, modified: counts.modified + 1 }
       }
-    }
+      return counts
+    },
+    { untracked: 0, modified: 0 }
+  )
 
-    return `Git status: ${YELLOW}${untracked} untracked, ${modified} modified${RESET}`
-  } catch (error) {
-    return 'Git status: unavailable'
+  if (untracked === 0 && modified === 0) {
+    return `${GREEN}Git status:${RESET} ${GREEN}clean${RESET}`
   }
+
+  const modifiedText = modified === 0 ? `${GREEN}none${RESET}` : `${YELLOW}${modified}${RESET}`
+  const untrackedText = untracked === 0 ? `${GREEN}none${RESET}` : `${YELLOW}${untracked}${RESET}`
+
+  return `${YELLOW}Git status${RESET} (modified: ${modifiedText}, untracked: ${untrackedText})`
 }
 
 function spawnFzf(notesPath, headerText) {
