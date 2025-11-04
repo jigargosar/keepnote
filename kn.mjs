@@ -5,8 +5,8 @@
 // - Consider add/commit workflow integration for simplified UX
 
 import { spawnSync } from 'node:child_process'
-import searchNote from './src/search-note.mjs'
-import createNote from './src/create-note.mjs'
+import searchNote from './src/kn/search-command.mjs'
+import createNote from './src/kn/create-command.mjs'
 import openInEditor from './src/open-in-editor.mjs'
 import { displayAndExitIfAnyDependencyMissing } from './src/dependencies.mjs'
 import { getOrCreateNotesPath } from './src/config.mjs'
