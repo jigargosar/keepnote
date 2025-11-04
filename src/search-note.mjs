@@ -11,7 +11,6 @@ function getGitStatusHeader(notesPath) {
   const GREEN = '\x1b[32m'
   const YELLOW = '\x1b[33m'
   const RED = '\x1b[31m'
-  const ORANGE = '\x1b[33m' // Using yellow as orange approximation
   const RESET = '\x1b[0m'
 
   const result = spawnSync('git', ['status', '--porcelain'], {
@@ -20,15 +19,10 @@ function getGitStatusHeader(notesPath) {
     stdio: ['pipe', 'pipe', 'pipe']
   })
 
-  // Exit code 128 typically means not a git repository
-  if (result.status === 128) {
-    return `${ORANGE}Git status: not a repository (use keepnote git init)${RESET}`
-  }
-
   // Other non-zero exit codes
   if (result.status !== 0) {
-    const errorMsg = result.stderr?.trim() || 'unknown error'
-    return `${RED}Git status: error (${errorMsg})${RESET}`
+    const firstErrorLine = result.stderr?.trim().split('\n')[0] || 'unknown error'
+    return `${RED}Git status: ${firstErrorLine}${RESET}`
   }
 
   const lines = result.stdout.trim().split('\n').filter(line => line)
