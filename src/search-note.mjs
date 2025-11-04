@@ -50,7 +50,8 @@ function getGitStatusHeader(notesPath) {
   return `${YELLOW}Git status${RESET} (modified: ${modifiedText}, untracked: ${untrackedText})`
 }
 
-function spawnFzf(notesPath, headerText) {
+function spawnFzf(notesPath) {
+  const headerText = getGitStatusHeader(notesPath)
   const toggleScriptPath = fileURLToPath(new URL('./get-next-mode.mjs', import.meta.url))
   const previewScriptPath = fileURLToPath(new URL('./preview-note.mjs', import.meta.url))
   const deleteScriptPath = fileURLToPath(new URL('./delete-note.mjs', import.meta.url))
@@ -84,8 +85,7 @@ function spawnFzf(notesPath, headerText) {
 
 
 export default async function searchNote(notesPath) {
-  const headerText = getGitStatusHeader(notesPath)
-  const fzf = spawnFzf(notesPath, headerText)
+  const fzf = spawnFzf(notesPath)
 
   const { code, output } = await fzf.promise
 
