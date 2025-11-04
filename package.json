@@ -1,6 +1,6 @@
 {
   "name": "keepnote",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "type": "module",
   "description": "Simple CLI note-taking tool",
   "author": "Jigar Gosar <jigar.gosar@gmail.com>",
