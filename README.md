@@ -11,9 +11,12 @@ Dead simple. Blazingly fast. Just notes.
 
 - **Search is instant** - ripgrep + fzf means you find what you need in milliseconds
 - **Dual search modes** - Toggle between filename and content search with Tab
+- **Git status at a glance** - See what's changed at the top of your search
+- **Delete from search** - Press Ctrl+D to remove notes without leaving the interface
 - **Creating notes is frictionless** - `kn "my idea"` and you're writing
 - **Opens right where you need** - Jumps to the exact line in your editor
 - **Git sync built-in** - One command backup your notes with automated commit messages
+- **Git commands made easy** - Run any git command in your notes directory with `keepnote git`
 - **Works everywhere** - Linux, macOS, Windows
 - **No lock-in** - Just markdown files in a folder
 - **Preview while you search** - See your notes with syntax highlighting before opening
@@ -55,7 +58,7 @@ Creates a markdown file as `YYYY-MM-DD_my-note-title.md` and opens it in your ed
 kn
 ```
 
-Launches interactive search powered by ripgrep and fzf. Type to filter through all your notes. Press Tab to toggle between searching filenames vs file content. bat shows a syntax-highlighted preview as you browse. Hit Enter to open the note at the exact matched line.
+Launches interactive search powered by ripgrep and fzf. Git status appears at the top showing what's changed (clean, modified, or untracked files). Type to filter through all your notes. Press Tab to toggle between searching filenames vs file content. bat shows a syntax-highlighted preview as you browse. Press Ctrl+D to delete a note. Hit Enter to open the note at the exact matched line.
 
 **Configure:**
 
@@ -76,7 +79,18 @@ editor = "code"                    # default: $EDITOR or vim
 keepnote sync
 ```
 
-Automatically commits and pushes your notes to git with a timestamped message.
+Shows git status and pending changes, then commits and pushes your notes with a timestamped message. Asks for confirmation before executing.
+
+**Run git commands:**
+
+```bash
+keepnote git <command>
+```
+
+Run any git command in your notes directory. Examples:
+- `keepnote git status` - Check what's changed
+- `keepnote git log` - View commit history
+- `keepnote git diff` - See what's different
 
 **Get help:**
 
