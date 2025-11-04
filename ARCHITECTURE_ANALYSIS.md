@@ -39,45 +39,97 @@ Returns to kn.mjs
 | `rg-commands.mjs`                 | (none)                 | Builds ripgrep command strings      |
 | `constants.mjs`                   | (none)                 | Mode definitions                    |
 
-## **Recommended Structure**
+## **Current Problems**
+
+1. **Misplaced constants**: `FZF_PROMPTS` is in `src/keepnote/constants.mjs` but it's kn-specific
+2. **Cross-dependency violation**: kn scripts importing from keepnote directory
+3. **Poor separation**: kn and keepnote code not properly isolated
+
+## **Recommended Structure (Feature-Oriented)**
 
 ```
-src/kn/
-├── search-note.mjs           ← Main orchestrator (spawns FZF, parses output)
-├── create-note.mjs           ← Create new notes
+src/
+├── kn/                       ← kn command code (completely independent)
+│   ├── search-command.mjs    ← All search functionality (~160 lines)
+│   │                           • FZF orchestration (spawn, config, bindings)
+│   │                           • Mode config (CONTENT/FILES, DEFAULT_MODE)
+│   │                           • Ripgrep commands (fileContentSearchCommand, etc.)
+│   │                           • Ripgrep parser (parseRipgrepSelection)
+│   │                           • Git status header generation
+│   │                           (Use comments to demarcate sections if file grows)
+│   │
+│   ├── create-command.mjs    ← Note creation (currently create-note.mjs)
+│   │
+│   └── search-scripts/       ← Executable scripts spawned BY FZF
+│       ├── get-next-mode.mjs ← Tab key handler
+│       ├── get-reload.mjs    ← Reload after delete (currently get-reload-for-current-mode.mjs)
+│       ├── preview.mjs       ← Preview handler (currently preview-note.mjs)
+│       └── delete.mjs        ← Delete handler (currently delete-note.mjs)
 │
-├── rg/                       ← Ripgrep layer
-│   ├── commands.mjs          ← Build rg command strings
-│   └── parser.mjs            ← Parse rg output format (from search-note)
+├── keepnote/                 ← keepnote command code (completely independent)
+│   └── sync-command.mjs      ← Git sync functionality
 │
-├── fzf-scripts/              ← Scripts spawned BY FZF
-│   ├── modes.mjs             ← Mode config (CONTENT/FILES), DEFAULT_MODE
-│   ├── get-next-mode.mjs     ← Tab key handler
-│   ├── get-reload.mjs        ← Reload after delete
-│   ├── preview.mjs           ← Preview handler
-│   └── delete.mjs            ← Delete handler
+├── open-in-editor.mjs        ← Shared utilities
+├── config.mjs                ← Shared utilities
+├── dependencies.mjs          ← Shared utilities
+└── util.mjs                  ← Shared utilities
 ```
+
+**Critical Rule: NO imports between `src/kn/` and `src/keepnote/`**
+- They are independent CLI tools
+- Both can import from shared utilities in `src/`
+- No cross-dependencies allowed
+
+**Philosophy: Feature-oriented over technology-oriented**
+- All search functionality in one place (not split by FZF/ripgrep/modes)
+- Simpler mental model: 2 commands = 2 files
+- Cohesive: ripgrep, modes, FZF are all part of ONE feature: search
+- If `search-command.mjs` grows large, use comment sections to organize
 
 ## **Key Design Decisions**
 
-1. **`rg/` directory** - Ripgrep-specific code
-    - `commands.mjs` - Command builders
-    - `parser.mjs` - Parse ripgrep output (move from rg-commands.mjs)
+1. **Complete separation of kn and keepnote**:
+    - `src/kn/` - All kn-specific code (search and create functionality)
+    - `src/keepnote/` - All keepnote-specific code (git sync, management)
+    - `src/` - Shared utilities only (config, editor, dependencies, util)
+    - **NO cross-dependencies** between kn and keepnote
 
-2. **`fzf-scripts/` directory** - Helper scripts spawned by FZF
-    - `modes.mjs` - Mode configuration (CONTENT/FILES, DEFAULT_MODE, mode-to-command mapping)
-    - All FZF child processes in one place
-    - Import from `../rg/commands.mjs` when needed
+2. **Feature-oriented over technology-oriented**:
+    - Don't split by technology (FZF vs ripgrep vs modes)
+    - Split by feature (search command vs create command)
+    - All search-related code in `search-command.mjs`:
+        - FZF orchestration (spawning, configuration, bindings)
+        - Mode definitions (CONTENT/FILES, DEFAULT_MODE)
+        - Ripgrep commands (`fileContentSearchCommand`, `fileNameSearchCommand`)
+        - Ripgrep parser (`parseRipgrepSelection`, `FIELD_DELIMITER`)
+        - Git status header generation
+    - Rationale: These are NOT reusable components - they're cohesive parts of ONE feature
 
-3. **`search-note.mjs` orchestrates**:
-    - Imports from `rg/commands.mjs` for initial command
-    - Imports from `rg/parser.mjs` for parsing selection
-    - Imports from `fzf-scripts/modes.mjs` for default mode
-    - Passes script paths to FZF --bind arguments
+3. **`search-scripts/` directory** - Executable scripts spawned by FZF:
+    - Only contains executables (no shared modules)
+    - Import from `../search-command.mjs` as needed
+    - These are spawned processes (file paths used in --bind, not imported)
 
-4. **Separation of concerns**:
-    - Ripgrep = search engine (rg/)
-    - FZF = UI layer (fzf-scripts/)
-    - search-note = orchestrator (connects them)
+4. **File organization within `search-command.mjs`**:
+    - Use comment sections to demarcate logical parts:
+        ```
+        // ============================================================================
+        // Mode Configuration
+        // ============================================================================
+
+        // ============================================================================
+        // Ripgrep Commands
+        // ============================================================================
+
+        // ============================================================================
+        // FZF Orchestration
+        // ============================================================================
+        ```
+    - If file becomes too large (>300 lines), extract to `search-command-utils.mjs`
+
+5. **Simplicity over premature abstraction**:
+    - 2 commands = 2 files (+ scripts directory)
+    - Easy to understand, navigate, and maintain
+    - Don't create abstractions until we need them
 
 Does this structure make sense? Should I proceed with this reorganization?
