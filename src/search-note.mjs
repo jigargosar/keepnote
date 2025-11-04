@@ -41,13 +41,14 @@ function getGitStatusHeader(notesPath) {
   )
 
   if (untracked === 0 && modified === 0) {
-    return `${GREEN}Git status:${RESET} ${GREEN}clean${RESET}`
+    return `${GREEN}Git status: clean${RESET}`
   }
 
-  const modifiedText = modified === 0 ? `${GREEN}none${RESET}` : `${YELLOW}${modified}${RESET}`
-  const untrackedText = untracked === 0 ? `${GREEN}none${RESET}` : `${YELLOW}${untracked}${RESET}`
+  const parts = []
+  if (modified > 0) parts.push(`modified: ${modified}`)
+  if (untracked > 0) parts.push(`untracked: ${untracked}`)
 
-  return `${YELLOW}Git status${RESET} (modified: ${modifiedText}, untracked: ${untrackedText})`
+  return `${YELLOW}Git status (${parts.join(', ')})${RESET}`
 }
 
 function spawnFzf(notesPath) {
